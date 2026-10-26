@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Route Wrapping Concepts{% endblock %}
+
+{% block content %}
+<h2>Flask Wrapping Concepts (Decorators) Prototype</h2>
+<p>This prototype demonstrates how function wrappers (decorators) control access across 3 distinct route levels.</p>
+
+<table style="margin-top: 20px;">
+    <thead>
+        <tr>
+            <th>Route Type</th>
+            <th>Decorator Used</th>
+            <th>Access Rule</th>
+            <th>Test Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-public">Type 1: Public</span></td>
+            <td><code>None</code> (Standard view)</td>
+            <td>Anyone can view (guests & users)</td>
+            <td><a href="{{ url_for('home') }}">Visit Home</a></td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-user">Type 2: Protected</span></td>
+            <td><code>@login_required</code></td>
+            <td>Must be logged in (any user role)</td>
+            <td><a href="{{ url_for('dashboard') }}">Visit Dashboard</a></td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-admin">Type 3: Role-Restricted</span></td>
+            <td><code>@role_required('admin')</code></td>
+            <td>Must be logged in <strong>AND</strong> role must be <code>admin</code></td>
+            <td><a href="{{ url_for('admin_panel') }}">Visit Admin Panel</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<div style="margin-top: 30px; padding: 15px; background: #f1f5f9; border-radius: 6px;">
+    <h4>How to test the behavior:</h4>
+    <ol>
+        <li>Try clicking <strong>Dashboard</strong> or <strong>Admin Only</strong> while logged out &rarr; redirects to Login with warning.</li>
+        <li>Log in as <code>alice</code> (role: <code>user</code>) &rarr; Dashboard works, but clicking Admin triggers an Unauthorized warning.</li>
+        <li>Log out and log in as <code>admin</code> (role: <code>admin</code>) &rarr; Both Dashboard and Admin Panel work.</li>
+    </ol>
+</div>
+{% endblock %}

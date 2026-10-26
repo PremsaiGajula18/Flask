@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · CarePulse{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Operational Dashboard</h1>
+    <p class="text-secondary mb-0">Overview for <strong class="text-dark">{{ current_user.display_name }}</strong> · Role: <span class="badge bg-primary-subtle text-primary">{{ current_user.role|replace('_',' ')|title }}</span></p>
+  </div>
+  {% if current_user.role in ['policyholder','hospital'] %}
+  <a class="btn btn-primary shadow-sm" href="{{ url_for('claims.new_claim') }}">
+    <i class="bi bi-plus-lg"></i> Submit New Claim
+  </a>
+  {% endif %}
+</div>
+
+<!-- Modern KPI Metrics Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Visible Claims</span>
+        <div class="metric-icon-box metric-icon-blue">
+          <i class="bi bi-files"></i>
+        </div>
+      </div>
+      <div class="metric-value">{{ counts.values()|sum }}</div>
+      <small class="text-secondary">Across your assigned scope</small>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Active Policies</span>
+        <div class="metric-icon-box metric-icon-indigo">
+          <i class="bi bi-shield-check"></i>
+        </div>
+      </div>
+      <div class="metric-value">{{ policies }}</div>
+      <small class="text-secondary">Under active coverage</small>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Total Claimed</span>
+        <div class="metric-icon-box metric-icon-amber">
+          <i class="bi bi-currency-rupee"></i>
+        </div>
+      </div>
+      <div class="metric-value fs-3">₹{{ '{:,.2f}'.format(requested_total|float) }}</div>
+      <small class="text-secondary">Cumulative requested value</small>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Settled Payouts</span>
+        <div class="metric-icon-box metric-icon-emerald">
+          <i class="bi bi-check-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value fs-3 text-success">₹{{ '{:,.2f}'.format(paid_total|float) }}</div>
+      <small class="text-secondary">Simulated disbursed funds</small>
+    </div>
+  </div>
+</div>
+
+<!-- Claims Distribution by Status -->
+<div class="card mb-4">
+  <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+    <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+      <i class="bi bi-diagram-3 text-primary"></i> Claims Pipeline Status
+    </h2>
+    <span class="badge text-bg-light border text-secondary">{{ counts.values()|sum }} Total</span>
+  </div>
+  <div class="card-body">
+    <div class="d-flex flex-wrap gap-2">
+      {% for status, count in counts.items() %}
+        <a href="{{ url_for('claims.list_claims', status=status) }}" class="text-decoration-none">
+          <span class="badge status-{{ status }} px-3 py-2 fs-6 shadow-sm">
+            {{ status|replace('_',' ')|title }}: <strong>{{ count }}</strong>
+          </span>
+        </a>
+      {% else %}
+        <span class="text-secondary">No claims currently recorded in your scope.</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Claims Table -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+      <i class="bi bi-clock-history text-primary"></i> Recent Claims Activity
+    </h2>
+    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('claims.list_claims') }}">
+      View All Claims <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Claim ID</th>
+          <th>Beneficiary Member</th>
+          <th>Claim Type</th>
+          <th>Requested Amount</th>
+          <th>Workflow Status</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for claim in recent_claims %}
+        <tr>
+          <td class="fw-bold text-primary">#{{ claim.id }}</td>
+          <td>
+            <div class="fw-semibold">{{ claim.member.display_name }}</div>
+            <small class="text-secondary">Policy #{{ claim.policy_id }}</small>
+          </td>
+          <td>
+            <span class="badge text-bg-light border">{{ claim.claim_type|title }}</span>
+          </td>
+          <td class="fw-semibold">₹{{ '{:,.2f}'.format(claim.requested_amount_inr|float) }}</td>
+          <td>
+            <span class="badge status-{{ claim.status }}">{{ claim.status|replace('_',' ')|title }}</span>
+          </td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('claims.detail', claim_id=claim.id) }}">
+              <i class="bi bi-eye"></i> Review
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-secondary py-4">No recent claims found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

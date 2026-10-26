@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Recruitify Features — AI Sourcing, ATS Pipeline & Video Screening{% endblock %}
+
+{% block content %}
+<!-- Header Hero -->
+<section class="page-hero-header">
+  <div class="container">
+    <span class="section-badge">ENTERPRISE RECRUITING PLATFORM</span>
+    <h1 class="page-hero-title">Powerful Features Built to Automate Hiring</h1>
+    <p class="page-hero-subtitle">
+      From AI resume screening to interactive Kanban candidate pipelines and automated video assessments, explore everything Recruitify has to offer.
+    </p>
+  </div>
+</section>
+
+<!-- Features Deep Dive Sections -->
+<section class="section-padding">
+  <div class="container">
+    
+    <!-- Deep Dive 1: AI Candidate Matching -->
+    <div class="feature-deep-dive-row">
+      <div class="feature-content">
+        <span class="section-badge">AI MATCHING & PARSING</span>
+        <h2>Screen Resumes 10x Faster with Semantic AI</h2>
+        <p>No more manual keyword scanning. Our deep-learning parser extracts candidate work history, skill proficiencies, education credentials, and career progression instantly.</p>
+        <ul class="feature-bullets">
+          <li><i class="fa-solid fa-circle-check"></i> Multi-language resume parsing (PDF, DOCX, LinkedIn PDF)</li>
+          <li><i class="fa-solid fa-circle-check"></i> Automated candidate match percentage score (0 - 100%)</li>
+          <li><i class="fa-solid fa-circle-check"></i> Unbiased blind screening mode to remove subconscious hiring bias</li>
+        </ul>
+      </div>
+      <div class="feature-mockup-box">
+        <div style="font-weight: 700; font-size: 1.1rem; color: var(--brand-green); margin-bottom: 12px;">
+          <i class="fa-solid fa-robot"></i> Recruitify AI Scorecard Sample
+        </div>
+        <div style="background: rgba(255,255,255,0.06); padding: 16px; border-radius: 8px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700;">
+            <span>Sarah Jenkins (Senior Frontend Engineer)</span>
+            <span style="color: var(--brand-green); font-weight: 800;">94% Match</span>
+          </div>
+          <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden;">
+            <div style="width: 94%; height: 100%; background: var(--brand-green);"></div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-light-teal); margin-top: 8px;">
+            Highlights: 6+ yrs React/TypeScript, Lead Architecture at FinTech, Strong Open Source presence.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deep Dive 2: Visual Drag-and-Drop Pipeline -->
+    <div class="feature-deep-dive-row reverse">
+      <div class="feature-content">
+        <span class="section-badge">DYNAMIC PIPELINE</span>
+        <h2>Interactive Drag & Drop Applicant Kanban</h2>
+        <p>Keep your hiring team aligned. Move candidates smoothly through stages, leave internal notes, assign interviewers, and trigger automated candidate emails upon status changes.</p>
+        <ul class="feature-bullets">
+          <li><i class="fa-solid fa-circle-check"></i> Custom hiring stage configuration per role</li>
+          <li><i class="fa-solid fa-circle-check"></i> One-click interview scheduling & feedback collection</li>
+          <li><i class="fa-solid fa-circle-check"></i> Team scorecards & structured evaluation forms</li>
+        </ul>
+      </div>
+      <div class="feature-mockup-box">
+        <div style="font-weight: 700; font-size: 1.1rem; color: var(--brand-green); margin-bottom: 12px;">
+          <i class="fa-solid fa-chart-kanban"></i> Live Stage Kanban Pipeline
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="flex: 1; background: rgba(255,255,255,0.08); padding: 10px; border-radius: 6px; font-size: 0.8rem;">
+            <div style="font-weight: 700; margin-bottom: 6px;">Sourced (12)</div>
+            <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px; margin-bottom: 4px;">Alex Rivera</div>
+            <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px;">Devon Zhao</div>
+          </div>
+          <div style="flex: 1; background: rgba(0,230,118,0.15); border: 1px solid var(--brand-green-border); padding: 10px; border-radius: 6px; font-size: 0.8rem;">
+            <div style="font-weight: 700; color: var(--brand-green); margin-bottom: 6px;">Interview (4)</div>
+            <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px; margin-bottom: 4px;">Marcus Vance</div>
+            <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px;">Elena Rostova</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deep Dive 3: Automated Video Assessments -->
+    <div class="feature-deep-dive-row">
+      <div class="feature-content">
+        <span class="section-badge">ASYNC VIDEO INTERVIEWS</span>
+        <h2>Pre-Screen Candidates with One-Way Video</h2>
+        <p>Send customized video assessment prompts. Candidates record their responses on their own time, allowing your hiring managers to review when convenient.</p>
+        <ul class="feature-bullets">
+          <li><i class="fa-solid fa-circle-check"></i> Time-limited response recording</li>
+          <li><i class="fa-solid fa-circle-check"></i> AI sentiment & speaking pace insights</li>
+          <li><i class="fa-solid fa-circle-check"></i> Shared playback link for hiring committee reviews</li>
+        </ul>
+      </div>
+      <div class="feature-mockup-box" style="text-align: center;">
+        <i class="fa-solid fa-video" style="font-size: 3rem; color: var(--brand-green); margin-bottom: 12px;"></i>
+        <h4 style="font-size: 1.1rem; color: var(--text-white);">Video Assessment Suite</h4>
+        <p style="font-size: 0.85rem; color: var(--text-light-teal); margin-top: 6px;">
+          Supports HD video recording, automated transcript generation, and multi-evaluator scoring.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Call to action -->
+<section style="background: var(--brand-petrol); color: var(--text-white); padding: 60px 0; text-align: center;">
+  <div class="container">
+    <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 12px;">
+      Experience the Power of Recruitify Firsthand
+    </h2>
+    <a href="{{ url_for('dashboard') }}" class="btn-green-pill" style="padding: 12px 28px;">
+      View Live ATS Dashboard Demo <i class="fa-solid fa-arrow-right"></i>
+    </a>
+  </div>
+</section>
+{% endblock %}

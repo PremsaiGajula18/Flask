@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CarePulse Claims Intelligence{% endblock %}</title>
+  <!-- Google Fonts & Bootstrap 5.3 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Enterprise Navigation Header -->
+  <header class="navbar navbar-expand-lg carepulse-navbar">
+    <div class="container-fluid px-xl-4">
+      <a class="carepulse-brand" href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">
+        <div class="brand-icon-wrapper">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <span>Care<span class="brand-highlight">Pulse</span> <small class="text-secondary fw-normal fs-6 ms-1 d-none d-sm-inline">Claims Portal</small></span>
+      </a>
+
+      {% if current_user.is_authenticated %}
+      <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#carepulseNav" aria-controls="carepulseNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list fs-2 text-white"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="carepulseNav">
+        <nav class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1" aria-label="Primary navigation">
+          <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+          </a>
+          <a class="nav-link {% if 'claims.list' in request.endpoint or 'claims.detail' in request.endpoint %}active{% endif %}" href="{{ url_for('claims.list_claims') }}">
+            <i class="bi bi-file-earmark-medical"></i> Claims
+          </a>
+          <a class="nav-link {% if request.endpoint == 'main.policies' %}active{% endif %}" href="{{ url_for('main.policies') }}">
+            <i class="bi bi-shield-check"></i> Policies
+          </a>
+          <a class="nav-link {% if request.endpoint == 'main.reports' %}active{% endif %}" href="{{ url_for('main.reports') }}">
+            <i class="bi bi-bar-chart-line"></i> Analytics & Reports
+          </a>
+          {% if current_user.role in ['policyholder','hospital'] %}
+          <a class="nav-link {% if request.endpoint == 'claims.new_claim' %}active{% endif %}" href="{{ url_for('claims.new_claim') }}">
+            <i class="bi bi-plus-circle"></i> New Claim
+          </a>
+          {% endif %}
+          {% if current_user.role == 'admin' %}
+          <a class="nav-link {% if request.endpoint == 'main.admin_manage' %}active{% endif %}" href="{{ url_for('main.admin_manage') }}">
+            <i class="bi bi-gear-wide-connected"></i> Admin Console
+          </a>
+          {% endif %}
+        </nav>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="user-badge-pill d-none d-md-flex">
+            <div class="user-avatar-initials">
+              {{ current_user.display_name[:2]|upper }}
+            </div>
+            <div>
+              <div class="fw-semibold lh-1" style="font-size: 0.88rem;">{{ current_user.display_name }}</div>
+              <span class="user-role-chip">{{ current_user.role|replace('_',' ')|title }}</span>
+            </div>
+          </div>
+
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle border-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-gear"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><h6 class="dropdown-header">{{ current_user.display_name }} ({{ current_user.username }})</h6></li>
+              <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{{ url_for('auth.logout') }}" class="m-0 p-0">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">Simulation Sandbox</span>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="app-content-container">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+          <div>{{ message }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Modern Enterprise Footer -->
+  <footer class="app-footer">
+    <div class="container-fluid px-xl-4 text-center">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <div>
+          <strong>CarePulse™</strong> Claims Adjudication & Lifecycle Engine
+        </div>
+        <div class="text-secondary small">
+          Academic simulation platform with synthetic entities · No real insurance or bank transactions executed.
+        </div>
+        <div>
+          <span class="badge text-bg-light border text-secondary">v2.5 Enterprise Edition</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

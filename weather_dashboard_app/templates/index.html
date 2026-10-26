@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- =========================================================================
+       DOCUMENT METADATA & EXTERNAL ASSETS
+       ========================================================================= -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyPulse | Open-Meteo Weather Dashboard</title>
+
+  <!-- Typography: Google Fonts (Plus Jakarta Sans for clean Apple-style geometric numbers & headings) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Application Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Chart.js CDN: Used for rendering the smooth 24-hour temperature & rain probability area curve -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Root application container to constrain max-width and center layout on large monitors -->
+  <div class="app-container">
+    
+    <!-- =======================================================================
+         TOP NAVIGATION BAR: Brand, Autocomplete Search, and Global Unit Toggle
+         ======================================================================= -->
+    <header class="top-bar">
+      <!-- Brand Logo & App Identity -->
+      <div class="brand">
+        <div class="brand-icon">
+          <!-- Sun vector icon representing weather pulse -->
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">WeatherPulse</span>
+          <span class="brand-sub">Open-Meteo Live API</span>
+        </div>
+      </div>
+
+      <!-- City Search Container: Single-Request Submission (Enter Key or Search Button) -->
+      <div class="search-container">
+        <form class="search-box" id="city-search-form" autocomplete="off">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <!-- User types full city name; request is ONLY sent when submitted -->
+          <input type="text" id="city-search-input" placeholder="Enter city name (e.g. Dharmavaram, Berlin, Tokyo)..." autocomplete="off">
+          
+          <!-- Submit Button: Triggers exactly ONE search request -->
+          <button type="submit" id="btn-search-submit" class="btn-search-action" title="Search weather">
+            <span id="btn-search-text">Search</span>
+          </button>
+
+          <!-- Geolocation GPS Button: Triggers HTML5 navigator.geolocation -->
+          <button type="button" id="btn-current-location" title="Use current GPS location">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+            </svg>
+          </button>
+        </form>
+        
+        <!-- Validation / Error Feedback Banner (Displayed if city not found or empty) -->
+        <div class="search-feedback" id="search-feedback"></div>
+      </div>
+
+      <!-- Global Unit Switcher: Toggles between Celsius (°C) and Fahrenheit (°F) -->
+      <div class="unit-switch-group">
+        <button class="unit-btn active" id="unit-c" data-unit="C">°C</button>
+        <button class="unit-btn" id="unit-f" data-unit="F">°F</button>
+      </div>
+    </header>
+
+    <!-- =======================================================================
+         MAIN DASHBOARD GRID (Two Columns: Hero Section & Metric Cards)
+         ======================================================================= -->
+    <main class="dashboard-grid">
+
+      <!-- =====================================================================
+           LEFT COLUMN: Main Weather Hero Card, 7-Day Forecast & Hourly Chart
+           ===================================================================== -->
+      <section class="hero-col">
+        <div class="card hero-card">
+          
+          <!-- Hero Header: Selected City Name, Last Updated Timestamp, and Local Time -->
+          <div class="hero-header">
+            <div class="location-meta">
+              <h1 class="location-name" id="city-display-name">Berlin, Germany</h1>
+              <p class="update-time" id="last-updated-text">Updated a few minutes ago</p>
+            </div>
+            <div class="hero-right-meta">
+              <!-- Live local time calculated from coordinates -->
+              <span class="local-time-text" id="local-time-text">09:45 AM</span>
+              <!-- Inline secondary unit switch matching reference design -->
+              <div class="inline-unit-toggle">
+                <button class="small-unit-btn active" data-unit="C">°C</button>
+                <button class="small-unit-btn" data-unit="F">°F</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Main Weather Display: Large Animated SVG Icon, Big Temp, Condition, High/Low -->
+          <div class="hero-main">
+            <!-- Weather Visual Container: Dynamically injected with SVG icons by main.js -->
+            <div class="weather-visual" id="hero-weather-icon">
+              <div class="sun-orb"></div>
+            </div>
+            <div class="temp-block">
+              <!-- Large Temperature Numbers -->
+              <div class="main-temp-wrap">
+                <span class="main-temp-val" id="current-temp-val">17</span>
+                <span class="main-temp-unit" id="current-temp-unit">°C</span>
+              </div>
+              <!-- Weather condition description (e.g., Sunny, Rain, Overcast) -->
+              <div class="weather-condition-text" id="weather-condition-text">Sunny</div>
+              <!-- Daily High and Low temperature extremes -->
+              <div class="high-low-text">
+                <span id="high-temp">H 22°</span>
+                <span id="low-temp">L 13°</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7-Day Forecast Section: Horizontal scrollable cards with icons & min/max temps -->
+          <div class="forecast-section">
+            <div class="forecast-carousel" id="daily-forecast-container">
+              <!-- Dynamic day forecast pill elements generated by main.js renderDailyForecast() -->
+            </div>
+          </div>
+
+          <!-- 24-Hour Hourly Timeline Section: Chart.js Canvas drawing temperature & rain curves -->
+          <div class="hourly-section">
+            <div class="chart-wrapper">
+              <canvas id="hourlyTempChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           RIGHT COLUMN: Meteorological Metrics Grid (7 Responsive Cards)
+           ===================================================================== -->
+      <section class="metrics-grid">
+
+        <!-- 1. Visibility Card: Displays distance in km/mi with 5-tier stepped bars visual -->
+        <div class="card metric-card visibility-card">
+          <div class="metric-card-top">
+            <span class="metric-label">Visibility</span>
+            <!-- 5 horizontal stepped bars representing atmospheric clarity -->
+            <div class="stepped-bars-icon" id="vis-bars">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="metric-main-val">
+            <span id="visibility-val">20</span> <small id="visibility-unit">km</small>
+          </div>
+          <div class="metric-footer-status" id="visibility-status">Excellent</div>
+        </div>
+
+        <!-- 2. Pressure Card: Displays barometric pressure in millibars (mb) with wave gauge -->
+        <div class="card metric-card pressure-card">
+          <div class="metric-card-top">
+            <span class="metric-label">Pressure</span>
+            <!-- Barometer track and indicator dot -->
+            <div class="wave-track"><div class="wave-dot"></div></div>
+          </div>
+          <div class="metric-main-val">
+            <span id="pressure-val">1024</span> <small>mb</small>
+          </div>
+          <div class="metric-footer-status" id="pressure-status">Rising</div>
+        </div>
+
+        <!-- 3. Wind Card: Real-time speed, gusts, Beaufort scale, and 360° rotating compass needle -->
+        <div class="card metric-card wind-card">
+          <div class="metric-card-top">
+            <span class="metric-label">Wind</span>
+            <svg class="chevron-right" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="wind-content-row">
+            <!-- Circular Compass with Cardinal Directions (N, E, S, W) -->
+            <div class="compass-dial">
+              <div class="compass-ring">
+                <span class="cardinal n">N</span>
+                <span class="cardinal e">E</span>
+                <span class="cardinal s">S</span>
+                <span class="cardinal w">W</span>
+                <!-- Needle element rotated dynamically via CSS transform rotate(Xdeg) -->
+                <div class="compass-needle" id="compass-needle"></div>
+              </div>
+            </div>
+            <!-- Wind Statistics -->
+            <div class="wind-stats">
+              <div class="wind-stat-item">
+                <span class="wind-val" id="wind-speed-val">2</span> <span class="wind-unit" id="wind-unit-label">km/h</span>
+                <div class="stat-sub">Wind Speed</div>
+              </div>
+              <div class="wind-stat-item">
+                <span class="wind-val" id="wind-gust-val">26</span> <span class="wind-unit" id="wind-gust-unit-label">km/h</span>
+                <div class="stat-sub">Wind Gust</div>
+              </div>
+            </div>
+          </div>
+          <!-- Beaufort Force Classification -->
+          <div class="metric-footer-status force-label" id="wind-force-label">Force: 1 (Light Air)</div>
+        </div>
+
+        <!-- 4. AQI Card: Air Quality Index with color gradient arc progress gauge -->
+        <div class="card metric-card aqi-card">
+          <div class="metric-card-top">
+            <span class="metric-label">AQI</span>
+          </div>
+          <div class="radial-gauge-container">
+            <!-- Inline SVG Gauge: Progress controlled via stroke-dashoffset -->
+            <svg class="gauge-svg" viewBox="0 0 120 70">
+              <!-- Background Arc -->
+              <path class="gauge-bg-arc" d="M 15 65 A 45 45 0 0 1 105 65" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+              <!-- Active Gradient Arc -->
+              <path class="gauge-val-arc aqi-gradient-arc" id="aqi-arc-path" d="M 15 65 A 45 45 0 0 1 105 65" fill="none" stroke="url(#aqiGradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="142" stroke-dashoffset="50"/>
+              <circle id="aqi-indicator-dot" cx="20" cy="60" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
+              <!-- Green to Red color stops for Air Quality status -->
+              <defs>
+                <linearGradient id="aqiGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#10b981" />
+                  <stop offset="50%" stop-color="#f59e0b" />
+                  <stop offset="100%" stop-color="#ef4444" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-big-num" id="aqi-val">97</span>
+              <span class="gauge-sub-label" id="aqi-status">Moderate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. UV Index Card: Ultraviolet radiation score with radial arc gauge -->
+        <div class="card metric-card uv-card">
+          <div class="metric-card-top">
+            <span class="metric-label">UV</span>
+          </div>
+          <div class="radial-gauge-container">
+            <!-- Inline SVG UV Gauge -->
+            <svg class="gauge-svg" viewBox="0 0 120 70">
+              <path class="gauge-bg-arc" d="M 15 65 A 45 45 0 0 1 105 65" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+              <path class="gauge-val-arc uv-gradient-arc" id="uv-arc-path" d="M 15 65 A 45 45 0 0 1 105 65" fill="none" stroke="url(#uvGradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="142" stroke-dashoffset="65"/>
+              <circle id="uv-indicator-dot" cx="20" cy="60" r="5" fill="#eab308" stroke="#ffffff" stroke-width="2" />
+              <!-- Yellow to Purple color stops for UV scale (0 - 11+) -->
+              <defs>
+                <linearGradient id="uvGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#eab308" />
+                  <stop offset="50%" stop-color="#f97316" />
+                  <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-big-num" id="uv-val">5</span>
+              <span class="gauge-sub-label" id="uv-status">Moderate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Humidity Card: Relative humidity %, Dew Point, and vertical audio-style equalizer bars -->
+        <div class="card metric-card humidity-card">
+          <div class="metric-card-top">
+            <span class="metric-label">Humidity</span>
+            <svg class="chevron-right" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="humidity-content-row">
+            <!-- 8 Vertical equalizer pill bars whose heights scale with humidity percentage -->
+            <div class="equalizer-bars" id="humidity-bars">
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+              <span class="eq-bar"><i></i></span>
+            </div>
+            <!-- Main Humidity Numbers & Dew Point -->
+            <div class="humidity-stats">
+              <div class="humidity-main"><span id="humidity-val">55%</span> <small>Humid</small></div>
+              <div class="dew-point"><span id="dew-point-val">8°</span> Dew point</div>
+            </div>
+          </div>
+          <div class="metric-footer-status" id="humidity-comfort">Normal</div>
+        </div>
+
+        <!-- 7. Sun Hours Card: Sunrise, Sunset, total daylight duration, and parabolic trajectory arc -->
+        <div class="card metric-card sun-card">
+          <div class="metric-card-top">
+            <span class="metric-label">Sun hours</span>
+          </div>
+          <div class="sun-arc-wrap">
+            <svg class="sun-arc-svg" viewBox="0 0 220 95">
+              <!-- Dashed Horizon line -->
+              <line x1="15" y1="75" x2="205" y2="75" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <!-- Background parabolic trajectory arc -->
+              <path d="M 20 75 Q 110 -15 200 75" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
+              <!-- Active Daylight Progress Arc -->
+              <path class="sun-active-path" id="sun-active-path" d="M 20 75 Q 110 -15 200 75" fill="none" stroke="url(#sunGradient)" stroke-width="9" stroke-linecap="round" stroke-dasharray="240" stroke-dashoffset="120"/>
+              <!-- Glowing Sun marker circle on the arc -->
+              <circle id="sun-marker-circle" cx="75" cy="35" r="7" fill="#fbbf24" stroke="#ffffff" stroke-width="2.5" />
+              <!-- Warm sunset/sunrise gradient -->
+              <defs>
+                <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#fb923c" />
+                  <stop offset="100%" stop-color="#e11d48" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <!-- Daylight Duration Badge (e.g. 11hrs 15mins) -->
+            <div class="sun-duration-pill" id="sun-duration-text">11hrs 15mins</div>
+          </div>
+          <!-- Sunrise and Sunset Times Row -->
+          <div class="sun-times-row">
+            <div class="sun-time-item">
+              <div class="sun-time-val" id="sunrise-time-text">07:02 <small>AM</small></div>
+              <div class="sun-time-label">Sunrise</div>
+            </div>
+            <div class="sun-time-item right">
+              <div class="sun-time-val" id="sunset-time-text">06:18 <small>PM</small></div>
+              <div class="sun-time-label">Sunset</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Main JavaScript File: Handles dynamic state, API calls, Chart.js, and DOM updates -->
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

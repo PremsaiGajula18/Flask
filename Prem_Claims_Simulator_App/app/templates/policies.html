@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Policies · CarePulse{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Insurance Policies</h1>
+    <p class="text-secondary mb-0">Active coverage records, underlying policy terms, and insured beneficiaries.</p>
+  </div>
+  {% if current_user.role == 'admin' %}
+  <a class="btn btn-primary shadow-sm" href="{{ url_for('main.admin_manage') }}#create-policy">
+    <i class="bi bi-plus-lg"></i> Issue Policy
+  </a>
+  {% endif %}
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+      <i class="bi bi-shield-check text-primary"></i> Policy Master Register
+    </h2>
+    <span class="badge text-bg-light border text-secondary">{{ policies|length }} Policies Active</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Policy ID</th>
+          <th>Policyholder</th>
+          <th>Plan & Product</th>
+          <th>Validity Period</th>
+          <th>Sum Insured (Annual)</th>
+          <th>Status</th>
+          <th>Enrolled Members</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for policy in policies %}
+        <tr>
+          <td class="fw-bold text-primary">#{{ policy.id }}</td>
+          <td>
+            <div class="fw-semibold">{{ policy.holder.display_name }}</div>
+            <small class="text-secondary">@{{ policy.holder.username }}</small>
+          </td>
+          <td>
+            <div class="fw-semibold text-dark">{{ policy.plan.plan_name }}</div>
+            <small class="text-secondary">Deductible: ₹{{ '{:,.0f}'.format(policy.plan.deductible_inr|float) }} · Copay: {{ policy.plan.copay_percent }}%</small>
+          </td>
+          <td>
+            <div class="small fw-semibold">{{ policy.start_date.strftime('%d %b %Y') }}</div>
+            <div class="small text-secondary">to {{ policy.end_date.strftime('%d %b %Y') }}</div>
+          </td>
+          <td>
+            <span class="fw-bold text-dark">₹{{ '{:,.2f}'.format(policy.plan.annual_limit_inr|float) }}</span>
+          </td>
+          <td>
+            <span class="badge {% if policy.status == 'active' %}bg-success-subtle text-success border border-success-subtle{% else %}bg-secondary-subtle text-secondary border{% endif %}">
+              {{ policy.status|title }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex flex-wrap gap-1">
+              {% for member in policy.members %}
+                <span class="badge text-bg-light border" title="Relationship: {{ member.relationship|title }}">
+                  <i class="bi bi-person me-1"></i>{{ member.user.display_name if member.user else member.display_name }}
+                  <small class="text-secondary">({{ member.relationship }})</small>
+                </span>
+              {% else %}
+                <span class="text-secondary small">No additional members</span>
+              {% endfor %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="p-5 text-center text-secondary">
+            <i class="bi bi-shield-x fs-2 d-block mb-2"></i>
+            No policy records found in your authorization scope.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flask Interactive Learning</title>
+<style>
+/* ─── Reset & Base ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--bg4:#21283b;
+  --border:#30363d;--text:#c9d1d9;--text2:#8b949e;--text3:#6e7681;
+  --accent:#58a6ff;--accent2:#1f6feb;--green:#3fb950;--red:#f85149;
+  --orange:#d29922;--purple:#bc8cff;--cyan:#39d2c0;
+  --sidebar-w:280px;--code-bg:#0d1117;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* ─── Sidebar ─── */
+.sidebar{
+  position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:100;
+  transition:transform .3s ease;
+}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-header h2{font-size:1.2rem;color:var(--accent);display:flex;align-items:center;gap:8px}
+.sidebar-header h2 .flask-icon{font-size:1.4rem}
+.sidebar-header .subtitle{font-size:.75rem;color:var(--text3);margin-top:4px}
+
+.progress-section{padding:16px 20px;border-bottom:1px solid var(--border)}
+.progress-label{font-size:.75rem;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between}
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width .5s ease;width:0}
+
+.nav-list{flex:1;overflow-y:auto;padding:12px 0}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 20px;
+  cursor:pointer;transition:all .2s;font-size:.9rem;color:var(--text2);
+  border-left:3px solid transparent;
+}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent)}
+.nav-item.completed .nav-num{background:var(--green);color:#fff}
+.nav-num{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;background:var(--bg4);color:var(--text3);
+  flex-shrink:0;transition:all .3s;
+}
+
+/* ─── Mobile toggle ─── */
+.menu-toggle{
+  display:none;position:fixed;top:12px;left:12px;z-index:200;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-size:1.4rem;padding:6px 10px;cursor:pointer;
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90}
+
+/* ─── Main Content ─── */
+.main{margin-left:var(--sidebar-w);min-height:100vh;padding:40px 48px 80px}
+.main .section{display:none;max-width:860px;margin:0 auto;animation:fadeIn .4s ease}
+.main .section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── Typography ─── */
+h1{font-size:2rem;margin-bottom:8px;color:#fff}
+h2{font-size:1.5rem;margin:36px 0 12px;color:#fff}
+h3{font-size:1.15rem;margin:28px 0 10px;color:var(--accent)}
+h4{font-size:1rem;margin:20px 0 8px;color:var(--cyan)}
+p{margin-bottom:14px}
+ul,ol{margin:0 0 14px 24px}
+li{margin-bottom:6px}
+
+/* ─── Cards ─── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:18px 0}
+.card.tip{border-left:4px solid var(--cyan)}
+.card.tip::before{content:'💡 Important Concept';display:block;font-weight:700;color:var(--cyan);margin-bottom:6px;font-size:.85rem}
+.card.warning{border-left:4px solid var(--orange)}
+.card.warning::before{content:'⚠️ Common Mistake';display:block;font-weight:700;color:var(--orange);margin-bottom:6px;font-size:.85rem}
+.card.remember{border-left:4px solid var(--green)}
+.card.remember::before{content:'✅ Remember';display:block;font-weight:700;color:var(--green);margin-bottom:6px;font-size:.85rem}
+.card.interview{border-left:4px solid var(--purple)}
+.card.interview::before{content:'🧠 Interview Point';display:block;font-weight:700;color:var(--purple);margin-bottom:6px;font-size:.85rem}
+.card.code-card{border-left:4px solid var(--accent)}
+.card.code-card::before{content:'💻 Code Example';display:block;font-weight:700;color:var(--accent);margin-bottom:6px;font-size:.85rem}
+
+/* ─── Code Blocks ─── */
+.code-wrapper{position:relative;margin:14px 0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--bg4);font-size:.75rem;color:var(--text3)}
+.code-header .lang{text-transform:uppercase;font-weight:600;letter-spacing:.5px}
+.copy-btn{
+  background:none;border:1px solid var(--border);border-radius:4px;
+  color:var(--text2);padding:3px 10px;cursor:pointer;font-size:.72rem;transition:all .2s;
+}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+pre{margin:0;padding:16px;background:var(--code-bg);overflow-x:auto;font-size:.88rem;line-height:1.65}
+pre code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:var(--text)}
+.line-num{color:var(--text3);user-select:none;display:inline-block;width:28px;text-align:right;margin-right:16px;font-size:.82rem}
+
+/* Syntax colours */
+.kw{color:#ff7b72} .fn{color:#d2a8ff} .st{color:#a5d6ff} .cm{color:#8b949e;font-style:italic}
+.dc{color:#79c0ff} .bi{color:#ffa657} .op{color:#c9d1d9} .at{color:#ffa657}
+
+/* ─── Line-by-line Explanation ─── */
+.line-explain{margin:14px 0;border-left:2px solid var(--accent2);padding-left:16px}
+.line-explain .le-row{display:flex;gap:12px;padding:6px 0;font-size:.88rem;border-bottom:1px solid var(--border)}
+.line-explain .le-row:last-child{border-bottom:none}
+.le-code{font-family:'Cascadia Code',monospace;color:var(--purple);white-space:nowrap;min-width:180px;font-size:.82rem}
+.le-desc{color:var(--text2)}
+
+/* ─── Tables ─── */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.9rem}
+th{background:var(--bg4);color:var(--accent);text-align:left;padding:10px 14px;border:1px solid var(--border)}
+td{padding:10px 14px;border:1px solid var(--border);color:var(--text2)}
+tr:nth-child(even){background:var(--bg3)}
+
+/* ─── Interactive Diagram ─── */
+.arch-diagram{display:flex;flex-direction:column;align-items:center;gap:0;margin:24px 0}
+.arch-node{
+  background:var(--bg3);border:2px solid var(--border);border-radius:10px;
+  padding:12px 28px;text-align:center;cursor:pointer;transition:all .25s;
+  font-weight:600;font-size:.95rem;min-width:200px;
+}
+.arch-node:hover,.arch-node.selected{border-color:var(--accent);background:var(--bg4);color:var(--accent);transform:scale(1.04)}
+.arch-arrow{font-size:1.4rem;color:var(--text3);line-height:1}
+.arch-explain{
+  margin-top:16px;padding:16px 20px;background:var(--bg2);border:1px solid var(--accent2);
+  border-radius:8px;min-height:60px;font-size:.92rem;color:var(--text2);
+  transition:all .3s;display:none;width:100%;max-width:460px;
+}
+.arch-explain.visible{display:block;animation:fadeIn .3s}
+
+/* ─── Quiz ─── */
+.quiz-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;margin:20px 0}
+.quiz-box h4{margin:0 0 14px;color:var(--accent);font-size:1rem}
+.quiz-option{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;margin:6px 0;
+  border:1px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all .2s;font-size:.9rem;
+}
+.quiz-option:hover{border-color:var(--accent);background:var(--bg3)}
+.quiz-option.correct{border-color:var(--green);background:rgba(63,185,80,.1);color:var(--green)}
+.quiz-option.wrong{border-color:var(--red);background:rgba(248,81,73,.1);color:var(--red)}
+.quiz-option.disabled{pointer-events:none;opacity:.7}
+.quiz-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.quiz-option.correct .quiz-radio{border-color:var(--green)}
+.quiz-option.correct .quiz-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--green)}
+.quiz-option.wrong .quiz-radio{border-color:var(--red)}
+.quiz-option.wrong .quiz-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--red)}
+.quiz-feedback{margin-top:12px;padding:12px 16px;border-radius:8px;font-size:.88rem;display:none}
+.quiz-feedback.show{display:block;animation:fadeIn .3s}
+.quiz-feedback.right{background:rgba(63,185,80,.1);border:1px solid var(--green);color:var(--green)}
+.quiz-feedback.wrong-fb{background:rgba(248,81,73,.1);border:1px solid var(--red);color:var(--red)}
+
+/* ─── Interactive Demos ─── */
+.demo-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px;margin:18px 0}
+.demo-box h4{color:var(--cyan);margin-bottom:12px}
+.demo-input{
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);padding:10px 14px;font-size:.9rem;width:100%;margin:6px 0;
+  font-family:inherit;
+}
+.demo-input:focus{outline:none;border-color:var(--accent)}
+.demo-btn{
+  background:var(--accent2);color:#fff;border:none;border-radius:6px;
+  padding:10px 20px;cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:background .2s;margin:6px 4px 6px 0;
+}
+.demo-btn:hover{background:var(--accent)}
+.demo-output{
+  margin-top:12px;padding:14px;background:var(--bg);border:1px solid var(--border);
+  border-radius:6px;font-family:'Cascadia Code',monospace;font-size:.88rem;
+  color:var(--green);min-height:40px;white-space:pre-wrap;
+}
+.demo-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ─── Tabs ─── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:16px 0 0}
+.tab-btn{
+  padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--text2);cursor:pointer;font-size:.88rem;transition:all .2s;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none;padding:16px 0}
+.tab-content.active{display:block;animation:fadeIn .3s}
+
+/* ─── Nav Buttons ─── */
+.nav-buttons{display:flex;justify-content:space-between;margin-top:48px;padding-top:24px;border-top:1px solid var(--border)}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 24px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);cursor:pointer;font-size:.9rem;transition:all .2s;
+}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
+.complete-btn{
+  background:var(--green);color:#000;border:none;border-radius:8px;
+  padding:12px 24px;cursor:pointer;font-size:.9rem;font-weight:700;
+  transition:all .2s;margin:0 8px;
+}
+.complete-btn:hover{opacity:.85}
+.complete-btn.done{background:var(--text3);cursor:default}
+
+/* ─── Checklist ─── */
+.checklist{list-style:none;margin:0;padding:0}
+.checklist li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.95rem}
+.checklist li:last-child{border-bottom:none}
+.check-icon{font-size:1.1rem}
+
+/* ─── Flow diagram (final) ─── */
+.flow-vertical{display:flex;flex-direction:column;align-items:center;gap:0;margin:20px 0}
+.flow-node{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 24px;font-size:.9rem;text-align:center;min-width:220px}
+.flow-arrow{color:var(--text3);font-size:1.2rem}
+
+/* ─── Responsive ─── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .overlay.show{display:block}
+  .menu-toggle{display:block}
+  .main{margin-left:0;padding:60px 20px 80px}
+}
+@media(max-width:600px){
+  h1{font-size:1.5rem}
+  .nav-buttons{flex-direction:column;gap:10px}
+  .nav-btn,.complete-btn{width:100%;justify-content:center}
+}
+
+/* ─── Inline code ─── */
+code:not(pre code){background:var(--bg4);padding:2px 7px;border-radius:4px;font-size:.85em;font-family:'Cascadia Code','Fira Code',monospace;color:var(--purple)}
+
+/* ─── Output block ─── */
+.output-block{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:'Cascadia Code',monospace;font-size:.88rem;color:var(--green)}
+.output-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-family:'Segoe UI',sans-serif}
+</style>
+</head>
+<body>
+
+<!-- Mobile menu toggle -->
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ─── Sidebar ─── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2><span class="flask-icon">🧪</span> Flask Learning</h2>
+    <div class="subtitle">Interactive Mini-Course</div>
+  </div>
+  <div class="progress-section">
+    <div class="progress-label"><span>Course Progress</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <nav class="nav-list" id="navList">
+    <div class="nav-item active" data-section="0" onclick="goTo(0)"><span class="nav-num">1</span>Basic Flask App</div>
+    <div class="nav-item" data-section="1" onclick="goTo(1)"><span class="nav-num">2</span>Web Architecture</div>
+    <div class="nav-item" data-section="2" onclick="goTo(2)"><span class="nav-num">3</span>Debug Mode</div>
+    <div class="nav-item" data-section="3" onclick="goTo(3)"><span class="nav-num">4</span>app.route()</div>
+    <div class="nav-item" data-section="4" onclick="goTo(4)"><span class="nav-num">5</span>GET &amp; POST</div>
+    <div class="nav-item" data-section="5" onclick="goTo(5)"><span class="nav-num">6</span>Dynamic Routes</div>
+    <div class="nav-item" data-section="6" onclick="goTo(6)"><span class="nav-num">7</span>url_for()</div>
+    <div class="nav-item" data-section="7" onclick="goTo(7)"><span class="nav-num">★</span>Final Review</div>
+  </nav>
+</aside>
+
+<!-- ─── Main Content ─── -->
+<div class="main" id="mainContent">
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 0 – Basic Flask App
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec0">
+<h1>1. Basic Flask App</h1>
+<p>Let's start from scratch and build your very first Flask web application.</p>
+
+<h2>What is Flask?</h2>
+<p>Flask is a <strong>micro web framework</strong> for Python. Think of it as a toolkit that lets you turn Python code into a website or web API. It is called "micro" because it gives you the essential building blocks — routing, request handling, responses — without forcing a particular database, template engine, or project layout on you.</p>
+
+<div class="card tip">Flask was created by Armin Ronacher in 2010. It powers websites at companies like Netflix, Reddit, Lyft, and Zillow.</div>
+
+<h2>Why Use Flask?</h2>
+<ul>
+  <li><strong>Lightweight</strong> — only a few files to get started.</li>
+  <li><strong>Easy to learn</strong> — if you know Python, you can build a web app in minutes.</li>
+  <li><strong>Flexible</strong> — add only the extensions you need (databases, authentication, etc.).</li>
+  <li><strong>Large community</strong> — thousands of tutorials, plugins, and Stack Overflow answers.</li>
+</ul>
+
+<h2>Installing Flask</h2>
+<p>Open your terminal and run:</p>
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span>pip install flask</code></pre>
+</div>
+<p>This downloads Flask and its dependencies (<code>Werkzeug</code>, <code>Jinja2</code>, <code>MarkupSafe</code>, <code>itsdangerous</code>, <code>click</code>).</p>
+
+<h2>Project Structure</h2>
+<p>A minimal Flask project looks like this:</p>
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">folder structure</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span>my_flask_app/
+<span class="line-num">2</span>│
+<span class="line-num">3</span>└── app.py</code></pre>
+</div>
+<p>Yes, that's it! One file is enough to start. You'll add more files (templates, static assets, config) as your project grows.</p>
+
+<h2>Creating <code>app.py</code></h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python — app.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="kw">from</span> flask <span class="kw">import</span> Flask
+<span class="line-num">2</span>
+<span class="line-num">3</span>app = Flask(<span class="bi">__name__</span>)
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="at">@app.route</span>(<span class="st">"/"</span>)
+<span class="line-num">6</span><span class="kw">def</span> <span class="fn">home</span>():
+<span class="line-num">7</span>    <span class="kw">return</span> <span class="st">"Hello, Flask!"</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="kw">if</span> <span class="bi">__name__</span> == <span class="st">"__main__"</span>:
+<span class="line-num">10</span>    app.run(<span class="bi">debug</span>=<span class="dc">True</span>)</code></pre>
+</div>
+</div>
+
+<h3>Line-by-Line Explanation</h3>
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">from flask import Flask</span><span class="le-desc">Imports the <code>Flask</code> class from the flask package you installed. This class is the heart of every Flask application.</span></div>
+  <div class="le-row"><span class="le-code">app = Flask(__name__)</span><span class="le-desc">Creates an instance of the Flask application. <code>__name__</code> tells Flask the name of the current Python module so it can locate templates and static files.</span></div>
+  <div class="le-row"><span class="le-code">@app.route("/")</span><span class="le-desc">A <strong>decorator</strong> that tells Flask: "When someone visits the URL <code>/</code> (the homepage), run the function below."</span></div>
+  <div class="le-row"><span class="le-code">def home():</span><span class="le-desc">Defines a regular Python function. Flask will call this function whenever the <code>/</code> URL is requested.</span></div>
+  <div class="le-row"><span class="le-code">return "Hello, Flask!"</span><span class="le-desc">Whatever this function returns is sent back to the user's browser as the response.</span></div>
+  <div class="le-row"><span class="le-code">if __name__ == "__main__":</span><span class="le-desc">Standard Python guard: runs the block only when you execute the file directly (not when imported).</span></div>
+  <div class="le-row"><span class="le-code">app.run(debug=True)</span><span class="le-desc">Starts Flask's built-in development server. <code>debug=True</code> enables helpful error messages and auto-reload.</span></div>
+</div>
+
+<h2>Running the Application</h2>
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span>python app.py</code></pre>
+</div>
+
+<h3>Expected Output</h3>
+<div class="output-block">
+<div class="output-label">Terminal Output</div>
+ * Serving Flask app 'app'
+ * Debug mode: on
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+</div>
+<p>Open your browser and go to <code>http://127.0.0.1:5000</code>. You will see:</p>
+<div class="output-block">
+<div class="output-label">Browser</div>
+Hello, Flask!
+</div>
+
+<div class="card remember"><code>127.0.0.1</code> is <strong>localhost</strong> — your own computer. Port <strong>5000</strong> is Flask's default port.</div>
+
+<div class="card warning">If port 5000 is already in use, Flask will show an error. You can change the port: <code>app.run(port=8000)</code>.</div>
+
+<div class="card interview">
+  <strong>Q: What does <code>Flask(__name__)</code> do?</strong><br>
+  It creates a Flask application object. <code>__name__</code> helps Flask find the root path of your project so it knows where to look for templates and static files.
+</div>
+
+<!-- Quiz -->
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q0a">
+  <h4>What does <code>@app.route("/")</code> do?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Starts the Flask server</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Defines what happens when <code>/</code> is requested</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Creates a database connection</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Enables debug mode</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q0b">
+  <h4>Which command installs Flask?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>npm install flask</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span><code>pip install flask</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>flask install</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>python -m flask</code></div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q0c">
+  <h4>What is the default port Flask runs on?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>3000</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>8080</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>5000</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>8000</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" disabled>← Previous</button>
+  <button class="complete-btn" onclick="markComplete(0)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(1)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 1 – Web Architecture
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec1">
+<h1>2. Flask Web Architecture</h1>
+<p>Before writing more code, let's understand <strong>how a Flask app actually works</strong> when someone visits your website.</p>
+
+<h2>The Request–Response Flow</h2>
+<p>Click on each component below to learn what it does:</p>
+
+<div class="arch-diagram" id="archDiagram">
+  <div class="arch-node" onclick="showArch(0)">🌐 Browser (Client)</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(1)">📨 HTTP Request</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(2)">🧪 Flask Application</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(3)">🛤️ @app.route()</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(4)">🐍 Python Function</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(5)">📩 HTTP Response</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-node" onclick="showArch(6)">🌐 Browser (Displays)</div>
+</div>
+<div class="arch-explain" id="archExplain"></div>
+
+<h2>Detailed Breakdown</h2>
+
+<h3>Client</h3>
+<p>The <strong>client</strong> is whatever makes the request — usually a web browser (Chrome, Firefox), but it could also be a mobile app or another program like <code>curl</code>. The client initiates communication.</p>
+
+<h3>Server</h3>
+<p>The <strong>server</strong> is the computer (or program) that receives requests and sends back responses. When you run <code>python app.py</code>, your own computer becomes a server.</p>
+
+<h3>HTTP Request</h3>
+<p>When you type <code>http://127.0.0.1:5000/</code> and press Enter, the browser sends an <strong>HTTP request</strong>. This request contains:</p>
+<ul>
+  <li><strong>Method</strong> — GET, POST, PUT, DELETE, etc.</li>
+  <li><strong>URL</strong> — the address you typed.</li>
+  <li><strong>Headers</strong> — metadata (browser type, language, cookies).</li>
+  <li><strong>Body</strong> — optional data (form submissions).</li>
+</ul>
+
+<h3>Route</h3>
+<p>Flask checks the URL from the request against all the routes you defined with <code>@app.route()</code>. If it finds a match, it calls the corresponding Python function. If no match is found, Flask returns a <strong>404 Not Found</strong> error.</p>
+
+<h3>View Function</h3>
+<p>The Python function attached to a route is called a <strong>view function</strong> (or simply "view"). It processes the request and returns a response — a string, HTML, JSON, or even a file.</p>
+
+<h3>HTTP Response</h3>
+<p>Flask packages the return value of your view function into an <strong>HTTP response</strong> that includes:</p>
+<ul>
+  <li><strong>Status code</strong> — 200 (OK), 404 (Not Found), 500 (Server Error), etc.</li>
+  <li><strong>Headers</strong> — content type, cookies, cache instructions.</li>
+  <li><strong>Body</strong> — the actual content (your HTML or text).</li>
+</ul>
+
+<h3>Browser Renders</h3>
+<p>The browser receives the response and displays the content. If it's HTML, the browser renders it as a web page. If it's plain text, it shows the text directly.</p>
+
+<div class="card tip">
+Every web interaction — clicking a link, submitting a form, loading an image — follows this same request → process → response cycle.
+</div>
+
+<div class="card interview">
+  <strong>Q: What is the difference between a client and a server?</strong><br>
+  The client (browser) <em>sends</em> requests. The server (Flask app) <em>receives</em> requests, processes them, and <em>sends back</em> responses.
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q1a">
+  <h4>What happens if a user visits a URL that has no matching <code>@app.route()</code>?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Flask crashes</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The home page is shown</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Flask returns a 404 Not Found error</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The server restarts</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q1b">
+  <h4>In the Flask flow, which step comes right after "HTTP Request"?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Browser renders the page</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Flask Application receives and processes it</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The database is queried</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A response is sent immediately</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q1c">
+  <h4>What does a view function return?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A database query</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>A response (string, HTML, JSON, etc.)</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A new route</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Nothing</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(0)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(1)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(2)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 2 – Debug Mode
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec2">
+<h1>3. Debug Mode</h1>
+<p>Debug mode is a developer's best friend while building a Flask application.</p>
+
+<h2>What is Debug Mode?</h2>
+<p>When you set <code>debug=True</code>, Flask enables two helpful features:</p>
+<ol>
+  <li><strong>Auto-Reloader</strong> — Flask watches your Python files. When you save a change, the server restarts automatically. No need to stop and start manually!</li>
+  <li><strong>Interactive Debugger</strong> — If your code has a bug and crashes, Flask shows a detailed error page in the browser with a full traceback, and even lets you run Python code right in the browser to investigate.</li>
+</ol>
+
+<h2>Syntax</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="cm"># Debug mode ON (development)</span>
+<span class="line-num">2</span>app.run(<span class="bi">debug</span>=<span class="dc">True</span>)
+<span class="line-num">3</span>
+<span class="line-num">4</span><span class="cm"># Debug mode OFF (production)</span>
+<span class="line-num">5</span>app.run(<span class="bi">debug</span>=<span class="dc">False</span>)</code></pre>
+</div>
+</div>
+
+<h2>Interactive Comparison</h2>
+<div class="demo-box">
+  <h4>🔀 See the difference</h4>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'debugOn')">debug=True</button>
+    <button class="tab-btn" onclick="switchTab(this,'debugOff')">debug=False</button>
+  </div>
+  <div class="tab-content active" id="debugOn">
+    <p><strong>Terminal shows:</strong></p>
+    <div class="output-block">
+ * Debug mode: on
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 123-456-789
+    </div>
+    <p>✅ Auto-reload on file save<br>✅ Detailed error page in browser<br>✅ Interactive debugger with PIN</p>
+  </div>
+  <div class="tab-content" id="debugOff">
+    <p><strong>Terminal shows:</strong></p>
+    <div class="output-block">
+ * Debug mode: off
+ * Running on http://127.0.0.1:5000
+    </div>
+    <p>❌ No auto-reload — must restart manually<br>❌ Generic error page (no details)<br>❌ No interactive debugger</p>
+  </div>
+</div>
+
+<h2>Development vs. Production</h2>
+<table>
+  <tr><th>Feature</th><th>Development (debug=True)</th><th>Production (debug=False)</th></tr>
+  <tr><td>Auto-reload</td><td>✅ Yes</td><td>❌ No</td></tr>
+  <tr><td>Error details in browser</td><td>✅ Full traceback</td><td>❌ Generic "Internal Server Error"</td></tr>
+  <tr><td>Interactive debugger</td><td>✅ Yes</td><td>❌ No</td></tr>
+  <tr><td>Performance</td><td>Slower (extra checks)</td><td>Faster</td></tr>
+  <tr><td>Security</td><td>⚠️ Risky — exposes code</td><td>✅ Safe</td></tr>
+</table>
+
+<div class="card warning">
+<strong>Never use <code>debug=True</code> in production!</strong> The interactive debugger lets anyone execute arbitrary Python code on your server. This is a massive security hole. Always set <code>debug=False</code> (or remove the argument entirely) before deploying.
+</div>
+
+<div class="card remember">
+During development on your own computer, always use <code>debug=True</code>. It saves you from constantly restarting the server and helps you find bugs faster.
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q2a">
+  <h4>What does the auto-reloader do?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Restarts the server automatically when you save a file</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Refreshes the browser automatically</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Reloads the database</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Clears the browser cache</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q2b">
+  <h4>Why is <code>debug=True</code> dangerous in production?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It makes the website slow</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It uses too much memory</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>The debugger allows anyone to run Python code on your server</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It changes your database</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(1)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(2)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(3)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 3 – app.route()
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec3">
+<h1>4. app.route()</h1>
+<p>Routes are the foundation of every Flask application. They map URLs to Python functions.</p>
+
+<h2>What is a Route?</h2>
+<p>A <strong>route</strong> is a rule that tells Flask: "When the user visits <em>this URL</em>, call <em>this function</em>."</p>
+
+<h2>How <code>@app.route()</code> Works</h2>
+<p><code>@app.route()</code> is a Python <strong>decorator</strong>. It "decorates" the function below it, registering that function to handle a specific URL.</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">home</span>():
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">"Home Page"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">@app.route("/")</span><span class="le-desc">Registers the URL path <code>/</code> (homepage). The <code>@</code> symbol marks it as a decorator.</span></div>
+  <div class="le-row"><span class="le-code">def home():</span><span class="le-desc">The view function that runs when <code>/</code> is visited. The name can be anything, but it should be descriptive.</span></div>
+  <div class="le-row"><span class="le-code">return "Home Page"</span><span class="le-desc">The text returned to the browser.</span></div>
+</div>
+
+<h2>Multiple Routes</h2>
+<p>You can have as many routes as you need — each one maps a different URL to a different function.</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">home</span>():
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">"Home Page"</span>
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="at">@app.route</span>(<span class="st">"/about"</span>)
+<span class="line-num">6</span><span class="kw">def</span> <span class="fn">about</span>():
+<span class="line-num">7</span>    <span class="kw">return</span> <span class="st">"About Page"</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="at">@app.route</span>(<span class="st">"/contact"</span>)
+<span class="line-num">10</span><span class="kw">def</span> <span class="fn">contact</span>():
+<span class="line-num">11</span>    <span class="kw">return</span> <span class="st">"Contact Page"</span></code></pre>
+</div>
+</div>
+
+<h3>The URL → Route → Function → Response Flow</h3>
+<div class="demo-box">
+  <h4>🔗 Interactive: Try a URL</h4>
+  <p>Click a URL to see which function runs and what the browser displays:</p>
+  <div class="demo-row">
+    <button class="demo-btn" onclick="routeDemo('/')">Visit /</button>
+    <button class="demo-btn" onclick="routeDemo('/about')">Visit /about</button>
+    <button class="demo-btn" onclick="routeDemo('/contact')">Visit /contact</button>
+    <button class="demo-btn" onclick="routeDemo('/unknown')" style="background:var(--red)">Visit /unknown</button>
+  </div>
+  <div class="demo-output" id="routeDemoOut">Click a URL above to see the result…</div>
+</div>
+
+<div class="card tip">Every route URL <strong>must start with <code>/</code></strong>. Writing <code>@app.route("about")</code> without the leading slash will cause an error.</div>
+
+<div class="card warning">
+<strong>Two routes cannot point to the same function name.</strong> Each view function must have a unique name, even if the URLs are different.
+</div>
+
+<div class="card interview">
+  <strong>Q: What is the difference between a URL path and a route?</strong><br>
+  A URL path (<code>/about</code>) is what the user types in the browser. A route (<code>@app.route("/about")</code>) is the Flask mechanism that maps that URL path to a Python function.
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q3a">
+  <h4>What does <code>@app.route("/contact")</code> do?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Creates a contact form</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Maps the URL <code>/contact</code> to the function below it</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Sends an email</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Redirects to the home page</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q3b">
+  <h4>What happens if you write <code>@app.route("about")</code> without <code>/</code>?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It works normally</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Flask raises an error</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It creates a subroute</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>It redirects to home</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q3c">
+  <h4>Can two different routes have the same function name?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Yes, always</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>No, each view function must have a unique name</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Only if they have different methods</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Only in debug mode</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(2)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(3)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(4)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 4 – GET & POST
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec4">
+<h1>5. GET and POST</h1>
+<p>HTTP methods tell the server <em>what kind of action</em> the client wants to perform. The two most common methods are <strong>GET</strong> and <strong>POST</strong>.</p>
+
+<h2>What is GET?</h2>
+<p><strong>GET</strong> means "give me some data." Every time you type a URL or click a link, your browser sends a GET request. It's used to <em>retrieve</em> information without modifying anything on the server.</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/login"</span>, <span class="bi">methods</span>=[<span class="st">"GET"</span>])
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">login</span>():
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">"Login Page"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">methods=["GET"]</span><span class="le-desc">Tells Flask this route only responds to GET requests. GET is actually the default, so this is optional — but being explicit is good practice.</span></div>
+</div>
+
+<h2>What is POST?</h2>
+<p><strong>POST</strong> means "here is some data — process it." It's used when the client <em>sends</em> data to the server, such as submitting a form (login, registration, search).</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="kw">from</span> flask <span class="kw">import</span> request
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="at">@app.route</span>(<span class="st">"/login"</span>, <span class="bi">methods</span>=[<span class="st">"POST"</span>])
+<span class="line-num">4</span><span class="kw">def</span> <span class="fn">login</span>():
+<span class="line-num">5</span>    username = request.form.get(<span class="st">"username"</span>)
+<span class="line-num">6</span>    <span class="kw">return</span> <span class="st">f"Welcome {username}"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">from flask import request</span><span class="le-desc">Imports Flask's <code>request</code> object, which holds all data sent by the client (form data, JSON, headers, etc.).</span></div>
+  <div class="le-row"><span class="le-code">methods=["POST"]</span><span class="le-desc">This route only accepts POST requests.</span></div>
+  <div class="le-row"><span class="le-code">request.form</span><span class="le-desc">A dictionary-like object containing form data submitted via POST.</span></div>
+  <div class="le-row"><span class="le-code">.get("username")</span><span class="le-desc">Safely retrieves the value of the form field named <code>username</code>. Returns <code>None</code> if the field doesn't exist (no crash).</span></div>
+</div>
+
+<h2>The HTML Form</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="op">&lt;</span><span class="kw">form</span> <span class="bi">method</span>=<span class="st">"POST"</span><span class="op">&gt;</span>
+<span class="line-num">2</span>    <span class="op">&lt;</span><span class="kw">input</span> <span class="bi">type</span>=<span class="st">"text"</span> <span class="bi">name</span>=<span class="st">"username"</span><span class="op">&gt;</span>
+<span class="line-num">3</span>    <span class="op">&lt;</span><span class="kw">button</span> <span class="bi">type</span>=<span class="st">"submit"</span><span class="op">&gt;</span>Submit<span class="op">&lt;/</span><span class="kw">button</span><span class="op">&gt;</span>
+<span class="line-num">4</span><span class="op">&lt;/</span><span class="kw">form</span><span class="op">&gt;</span></code></pre>
+</div>
+</div>
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">method="POST"</span><span class="le-desc">Tells the browser to send the form data using the POST method.</span></div>
+  <div class="le-row"><span class="le-code">name="username"</span><span class="le-desc">The key used in <code>request.form.get("username")</code>. The <code>name</code> attribute in HTML matches the key you use in Python.</span></div>
+  <div class="le-row"><span class="le-code">type="submit"</span><span class="le-desc">Creates a submit button. Clicking it sends the form data to the server.</span></div>
+</div>
+
+<h2>Interactive Demo: Form Submission</h2>
+<div class="demo-box">
+  <h4>📝 Try submitting a form</h4>
+  <p>Enter a username and click Submit to simulate what Flask receives:</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+    <div style="flex:1;min-width:180px">
+      <label style="font-size:.8rem;color:var(--text3)">username</label>
+      <input class="demo-input" id="formDemoInput" placeholder="Type your name…">
+    </div>
+    <button class="demo-btn" onclick="formDemo()">Submit (POST)</button>
+  </div>
+  <div class="demo-output" id="formDemoOut">Enter a name and click Submit…</div>
+</div>
+
+<h2>GET vs POST Comparison</h2>
+<table>
+  <tr><th>Feature</th><th>GET</th><th>POST</th></tr>
+  <tr><td>Purpose</td><td>Retrieve data</td><td>Send / submit data</td></tr>
+  <tr><td>Data location</td><td>In the URL (query string)</td><td>In the request body (hidden)</td></tr>
+  <tr><td>Visible in address bar?</td><td>✅ Yes</td><td>❌ No</td></tr>
+  <tr><td>Bookmarkable?</td><td>✅ Yes</td><td>❌ No</td></tr>
+  <tr><td>Data size limit</td><td>~2 KB (URL length limit)</td><td>No practical limit</td></tr>
+  <tr><td>Security</td><td>Less secure (data in URL)</td><td>More secure (data in body)</td></tr>
+  <tr><td>Use cases</td><td>Search, navigation, filters</td><td>Login, registration, file upload</td></tr>
+</table>
+
+<div class="card tip">
+A route can accept <strong>both</strong> GET and POST: <code>methods=["GET", "POST"]</code>. Inside the function, check which method was used with <code>request.method</code>.
+</div>
+
+<div class="card warning">
+Don't use GET for sensitive data like passwords. The data appears in the URL, browser history, and server logs.
+</div>
+
+<div class="card interview">
+  <strong>Q: What is the difference between <code>request.form</code> and <code>request.args</code>?</strong><br>
+  <code>request.form</code> → data from POST form body.<br>
+  <code>request.args</code> → data from GET query string (<code>?key=value</code>).
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q4a">
+  <h4>Where does GET data appear?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>In the URL (address bar)</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>In the request body</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>In the response headers</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>In the database</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q4b">
+  <h4>What does <code>request.form.get("username")</code> do?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Creates a form field</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Retrieves the value of the "username" field from the submitted form</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Validates the username</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Displays a form in the browser</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q4c">
+  <h4>Which method should be used for a login form?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>GET — so the URL can be bookmarked</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>POST — because passwords should not be in the URL</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>DELETE — because it removes old sessions</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>PUT — because it creates a user session</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(3)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(4)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(5)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 5 – Dynamic Routes
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec5">
+<h1>6. Dynamic Routes</h1>
+<p>So far every route has been <em>static</em> — a fixed URL like <code>/about</code>. Dynamic routes let you capture part of the URL and use it as a variable in your function.</p>
+
+<h2>Basic Dynamic Route</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/student/&lt;name&gt;"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">student</span>(name):
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">f"Student Name: {name}"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">&lt;name&gt;</span><span class="le-desc">A <strong>variable rule</strong>. Flask captures whatever text appears in this position in the URL and passes it to the function as the parameter <code>name</code>.</span></div>
+  <div class="le-row"><span class="le-code">def student(name):</span><span class="le-desc">The function <strong>must</strong> accept a parameter with the same name as the variable rule.</span></div>
+</div>
+
+<h3>Example URLs</h3>
+<table>
+  <tr><th>URL Visited</th><th>Value of <code>name</code></th><th>Response</th></tr>
+  <tr><td><code>/student/Ravi</code></td><td><code>"Ravi"</code></td><td>Student Name: Ravi</td></tr>
+  <tr><td><code>/student/Priya</code></td><td><code>"Priya"</code></td><td>Student Name: Priya</td></tr>
+  <tr><td><code>/student/Alex</code></td><td><code>"Alex"</code></td><td>Student Name: Alex</td></tr>
+</table>
+
+<h2>Type Converters</h2>
+<p>By default, the captured value is a string. You can force a specific type:</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/student/&lt;int:id&gt;"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">student_by_id</span>(id):
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">f"Student ID: {id}"</span></code></pre>
+</div>
+</div>
+
+<table>
+  <tr><th>Converter</th><th>Syntax</th><th>Accepts</th></tr>
+  <tr><td>string (default)</td><td><code>&lt;name&gt;</code></td><td>Any text without slashes</td></tr>
+  <tr><td>int</td><td><code>&lt;int:id&gt;</code></td><td>Positive integers</td></tr>
+  <tr><td>float</td><td><code>&lt;float:price&gt;</code></td><td>Floating-point numbers</td></tr>
+  <tr><td>path</td><td><code>&lt;path:filepath&gt;</code></td><td>Any text including slashes</td></tr>
+</table>
+
+<h2>Multiple Parameters</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/student/&lt;name&gt;/&lt;int:id&gt;"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">student_detail</span>(name, id):
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">f"Name: {name}, ID: {id}"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">&lt;name&gt;/&lt;int:id&gt;</span><span class="le-desc">Two variables captured from the URL, separated by <code>/</code>. The first is a string, the second an integer.</span></div>
+  <div class="le-row"><span class="le-code">def student_detail(name, id):</span><span class="le-desc">Both variables become function parameters. The names must match exactly.</span></div>
+</div>
+
+<h2>Interactive Demo: Build a URL</h2>
+<div class="demo-box">
+  <h4>🛤️ Try dynamic routes</h4>
+  <p>Enter a name and ID to see the generated URL and response:</p>
+  <div class="demo-row">
+    <div style="flex:1;min-width:120px">
+      <label style="font-size:.8rem;color:var(--text3)">Name</label>
+      <input class="demo-input" id="dynName" placeholder="e.g. Ravi">
+    </div>
+    <div style="flex:1;min-width:120px">
+      <label style="font-size:.8rem;color:var(--text3)">ID (number)</label>
+      <input class="demo-input" id="dynId" type="number" placeholder="e.g. 42">
+    </div>
+    <button class="demo-btn" onclick="dynamicDemo()" style="align-self:flex-end">Generate</button>
+  </div>
+  <div class="demo-output" id="dynDemoOut">Enter values above and click Generate…</div>
+</div>
+
+<div class="card warning">
+If you define <code>&lt;int:id&gt;</code> and the user visits <code>/student/hello</code>, Flask returns a <strong>404</strong> because <code>"hello"</code> is not an integer.
+</div>
+
+<div class="card remember">
+The variable name in <code>&lt;name&gt;</code> and the function parameter must be <strong>identical</strong>. <code>&lt;student_name&gt;</code> requires <code>def func(student_name):</code>.
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q5a">
+  <h4>What does <code>&lt;name&gt;</code> in a route capture?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>The text in that position of the URL, passed as a function parameter</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A fixed URL segment</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A query string parameter</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>A form field value</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q5b">
+  <h4>What type does <code>&lt;int:id&gt;</code> enforce?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>String</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Integer</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Float</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Boolean</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q5c">
+  <h4>What happens if you visit <code>/student/hello</code> on a route defined as <code>/student/&lt;int:id&gt;</code>?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Flask converts "hello" to 0</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>Flask returns a 404 Not Found</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>Flask treats it as a string</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The server crashes</div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(4)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(5)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(6)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 6 – url_for()
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec6">
+<h1>7. url_for()</h1>
+<p>Hard-coding URLs like <code>"/about"</code> everywhere works, but it becomes a maintenance nightmare when you change a URL. <code>url_for()</code> solves this by generating URLs dynamically based on function names.</p>
+
+<h2>What is <code>url_for()</code>?</h2>
+<p><code>url_for()</code> is a Flask helper that takes a <strong>function name</strong> and returns the <strong>URL</strong> associated with it.</p>
+
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="kw">from</span> flask <span class="kw">import</span> Flask, url_for
+<span class="line-num">2</span>
+<span class="line-num">3</span>app = Flask(<span class="bi">__name__</span>)
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="at">@app.route</span>(<span class="st">"/"</span>)
+<span class="line-num">6</span><span class="kw">def</span> <span class="fn">home</span>():
+<span class="line-num">7</span>    <span class="kw">return</span> <span class="st">"Home"</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="at">@app.route</span>(<span class="st">"/about"</span>)
+<span class="line-num">10</span><span class="kw">def</span> <span class="fn">about</span>():
+<span class="line-num">11</span>    <span class="kw">return</span> <span class="st">"About"</span></code></pre>
+</div>
+</div>
+
+<h3>Using <code>url_for()</code></h3>
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span>url_for(<span class="st">"home"</span>)     <span class="cm"># Returns: "/"</span>
+<span class="line-num">2</span>url_for(<span class="st">"about"</span>)    <span class="cm"># Returns: "/about"</span></code></pre>
+</div>
+
+<div class="card tip">
+Notice that <code>url_for()</code> takes the <strong>function name</strong> (e.g. <code>"home"</code>), <strong>not</strong> the URL path (e.g. <code>"/"</code>). This means if you later change <code>@app.route("/")</code> to <code>@app.route("/index")</code>, every <code>url_for("home")</code> call automatically generates the new URL.
+</div>
+
+<h2>Why Use <code>url_for()</code>?</h2>
+<ol>
+  <li><strong>Maintainability</strong> — Change the URL in one place (the decorator), and all links update automatically.</li>
+  <li><strong>No typos</strong> — If you misspell a function name, Flask raises an error immediately instead of serving a broken link silently.</li>
+  <li><strong>Handles special characters</strong> — <code>url_for()</code> properly escapes special characters in URLs.</li>
+</ol>
+
+<h2><code>url_for()</code> with Dynamic Routes</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="at">@app.route</span>(<span class="st">"/student/&lt;name&gt;"</span>)
+<span class="line-num">2</span><span class="kw">def</span> <span class="fn">student</span>(name):
+<span class="line-num">3</span>    <span class="kw">return</span> <span class="st">f"Student: {name}"</span>
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="cm"># Generating the URL:</span>
+<span class="line-num">6</span>url_for(<span class="st">"student"</span>, <span class="bi">name</span>=<span class="st">"Ravi"</span>)   <span class="cm"># Returns: "/student/Ravi"</span></code></pre>
+</div>
+</div>
+
+<div class="line-explain">
+  <div class="le-row"><span class="le-code">url_for("student", name="Ravi")</span><span class="le-desc">Pass dynamic parameters as keyword arguments. The key must match the variable rule name in the route.</span></div>
+</div>
+
+<h3>The Flow</h3>
+<div class="flow-vertical">
+  <div class="flow-node">Function name: <code>"student"</code></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node"><code>url_for("student", name="Ravi")</code></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">Generated URL: <code>/student/Ravi</code></div>
+</div>
+
+<h2>Interactive Demo: url_for() Builder</h2>
+<div class="demo-box">
+  <h4>🔗 Try url_for()</h4>
+  <p>Select a function and provide optional parameters:</p>
+  <div class="demo-row" style="flex-wrap:wrap">
+    <div>
+      <label style="font-size:.8rem;color:var(--text3)">Function name</label>
+      <select class="demo-input" id="urlForFunc" onchange="urlForChange()" style="cursor:pointer">
+        <option value="home">home</option>
+        <option value="about">about</option>
+        <option value="contact">contact</option>
+        <option value="student">student (dynamic)</option>
+      </select>
+    </div>
+    <div id="urlForParam" style="display:none">
+      <label style="font-size:.8rem;color:var(--text3)">name parameter</label>
+      <input class="demo-input" id="urlForName" placeholder="e.g. Ravi">
+    </div>
+    <button class="demo-btn" onclick="urlForDemo()" style="align-self:flex-end">Generate URL</button>
+  </div>
+  <div class="demo-output" id="urlForOut">Select a function and click Generate URL…</div>
+</div>
+
+<div class="card warning">
+If you write <code>url_for("students")</code> but your function is named <code>student</code>, Flask raises a <code>BuildError</code>. The name must match the function exactly.
+</div>
+
+<div class="card interview">
+  <strong>Q: Why should you use <code>url_for()</code> instead of hard-coding URLs?</strong><br>
+  Because if you change a URL path in the decorator, all <code>url_for()</code> calls automatically use the new path. Hard-coded URLs would break.
+</div>
+
+<h3>🧩 Quick Quiz</h3>
+<div class="quiz-box" data-quiz="q6a">
+  <h4>What does <code>url_for("home")</code> return if <code>@app.route("/")</code> decorates the <code>home</code> function?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span><code>"/"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"home"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"/home"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"http://localhost:5000/"</code></div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q6b">
+  <h4>What argument does <code>url_for()</code> take?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The URL path</div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span>The function name</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The HTTP method</div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span>The response status code</div>
+  <div class="quiz-feedback"></div>
+</div>
+<div class="quiz-box" data-quiz="q6c">
+  <h4>What does <code>url_for("student", name="Priya")</code> return?</h4>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"/student"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"/Priya"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,true)"><span class="quiz-radio"></span><code>"/student/Priya"</code></div>
+  <div class="quiz-option" onclick="checkQuiz(this,false)"><span class="quiz-radio"></span><code>"student/Priya"</code></div>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(5)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(6)">✓ Mark Complete</button>
+  <button class="nav-btn" onclick="goTo(7)">Next →</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SECTION 7 – Final Review
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec7">
+<h1>★ Final Review</h1>
+<p>Congratulations! Let's connect everything you've learned into one big picture.</p>
+
+<h2>The Complete Flask Flow</h2>
+<div class="flow-vertical">
+  <div class="flow-node">🌐 <strong>Browser</strong></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">📨 <strong>GET / POST Request</strong></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🧪 <strong>Flask Application</strong> — <code>app = Flask(__name__)</code></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🛤️ <strong>@app.route()</strong> — matches the URL</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🔀 <strong>Static or Dynamic Route</strong> — <code>/about</code> or <code>/student/&lt;name&gt;</code></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🐍 <strong>Python Function</strong> — your view function runs</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">📦 <strong>request / request.form</strong> — access submitted data</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🔗 <strong>url_for()</strong> — generate URLs dynamically</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">📩 <strong>Response</strong> — HTML, text, JSON</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">🌐 <strong>Browser</strong> — displays the result</div>
+</div>
+
+<h2>Complete Example</h2>
+<div class="card code-card">
+<div class="code-wrapper">
+  <div class="code-header"><span class="lang">python — app.py (full example)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  <pre><code><span class="line-num">1</span><span class="kw">from</span> flask <span class="kw">import</span> Flask, request, url_for
+<span class="line-num">2</span>
+<span class="line-num">3</span>app = Flask(<span class="bi">__name__</span>)
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="at">@app.route</span>(<span class="st">"/"</span>)
+<span class="line-num">6</span><span class="kw">def</span> <span class="fn">home</span>():
+<span class="line-num">7</span>    <span class="kw">return</span> <span class="st">"Home Page"</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="at">@app.route</span>(<span class="st">"/about"</span>)
+<span class="line-num">10</span><span class="kw">def</span> <span class="fn">about</span>():
+<span class="line-num">11</span>    <span class="kw">return</span> <span class="st">"About Page"</span>
+<span class="line-num">12</span>
+<span class="line-num">13</span><span class="at">@app.route</span>(<span class="st">"/student/&lt;name&gt;/&lt;int:id&gt;"</span>)
+<span class="line-num">14</span><span class="kw">def</span> <span class="fn">student</span>(name, id):
+<span class="line-num">15</span>    <span class="kw">return</span> <span class="st">f"Name: {name}, ID: {id}"</span>
+<span class="line-num">16</span>
+<span class="line-num">17</span><span class="at">@app.route</span>(<span class="st">"/login"</span>, <span class="bi">methods</span>=[<span class="st">"GET"</span>, <span class="st">"POST"</span>])
+<span class="line-num">18</span><span class="kw">def</span> <span class="fn">login</span>():
+<span class="line-num">19</span>    <span class="kw">if</span> request.method == <span class="st">"POST"</span>:
+<span class="line-num">20</span>        username = request.form.get(<span class="st">"username"</span>)
+<span class="line-num">21</span>        <span class="kw">return</span> <span class="st">f"Welcome {username}"</span>
+<span class="line-num">22</span>    <span class="kw">return</span> <span class="st">"Please log in"</span>
+<span class="line-num">23</span>
+<span class="line-num">24</span><span class="kw">if</span> <span class="bi">__name__</span> == <span class="st">"__main__"</span>:
+<span class="line-num">25</span>    app.run(<span class="bi">debug</span>=<span class="dc">True</span>)</code></pre>
+</div>
+</div>
+
+<h2>✅ What You Should Know Now — Checklist</h2>
+<p>Review each item. If you can explain it, you're ready to build real Flask apps!</p>
+<ul class="checklist" id="finalChecklist">
+  <li><span class="check-icon" id="chk0">⬜</span> <strong>Basic Flask App</strong> — Create a Flask app, define a route, and run the server.</li>
+  <li><span class="check-icon" id="chk1">⬜</span> <strong>Web Architecture</strong> — Explain the request → route → function → response flow.</li>
+  <li><span class="check-icon" id="chk2">⬜</span> <strong>Debug Mode</strong> — Know when to use <code>debug=True</code> vs <code>debug=False</code> and why.</li>
+  <li><span class="check-icon" id="chk3">⬜</span> <strong>app.route()</strong> — Define multiple routes and map URLs to functions.</li>
+  <li><span class="check-icon" id="chk4">⬜</span> <strong>GET &amp; POST</strong> — Use GET for retrieval and POST for submissions; access form data.</li>
+  <li><span class="check-icon" id="chk5">⬜</span> <strong>Dynamic Routes</strong> — Capture URL variables with <code>&lt;name&gt;</code> and type converters.</li>
+  <li><span class="check-icon" id="chk6">⬜</span> <strong>url_for()</strong> — Generate URLs from function names for maintainable code.</li>
+</ul>
+
+<div class="card remember" style="margin-top:24px">
+<strong>You've completed the Flask Interactive Course!</strong> You now have a solid foundation. The next steps would be learning Jinja2 templates, static files, Flask-WTF forms, and database integration with Flask-SQLAlchemy.
+</div>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="goTo(6)">← Previous</button>
+  <button class="complete-btn" onclick="markComplete(7)">✓ Mark Complete</button>
+  <button class="nav-btn" disabled>Next →</button>
+</div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+/* ─── State ─── */
+const TOTAL = 8;
+let current = 0;
+let completed = JSON.parse(localStorage.getItem('flaskCompleted') || '[]');
+let quizAnswered = JSON.parse(localStorage.getItem('flaskQuizAnswered') || '{}');
+
+/* ─── Navigation ─── */
+function goTo(idx) {
+  current = idx;
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i === idx));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window.innerWidth <= 900) closeSidebar();
+  updateUI();
+}
+
+/* ─── Sidebar toggle ─── */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+/* ─── Mark complete ─── */
+function markComplete(idx) {
+  if(!completed.includes(idx)){
+    completed.push(idx);
+    localStorage.setItem('flaskCompleted', JSON.stringify(completed));
+  }
+  updateUI();
+  // Auto-advance
+  if(idx < TOTAL - 1) setTimeout(()=>goTo(idx+1), 400);
+}
+
+/* ─── Update UI ─── */
+function updateUI(){
+  // Progress
+  const pct = Math.round((completed.length / TOTAL) * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Nav items
+  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+    n.classList.toggle('completed', completed.includes(i));
+    const num = n.querySelector('.nav-num');
+    if(completed.includes(i)) num.textContent = '✓';
+  });
+
+  // Complete buttons
+  document.querySelectorAll('.section').forEach((sec,i)=>{
+    const btn = sec.querySelector('.complete-btn');
+    if(btn){
+      if(completed.includes(i)){
+        btn.textContent = '✓ Completed';
+        btn.classList.add('done');
+      }
+    }
+  });
+
+  // Checklist on final page
+  for(let i = 0; i < 7; i++){
+    const el = document.getElementById('chk'+i);
+    if(el) el.textContent = completed.includes(i) ? '✅' : '⬜';
+  }
+
+  // Restore quiz states
+  Object.entries(quizAnswered).forEach(([key, val]) => {
+    const box = document.querySelector(`[data-quiz="${key}"]`);
+    if(!box || box.dataset.done) return;
+    box.dataset.done = '1';
+    const opts = box.querySelectorAll('.quiz-option');
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      if(i === val.selected){
+        o.classList.add(val.correct ? 'correct' : 'wrong');
+      }
+      if(!val.correct && val.correctIdx === i){
+        o.classList.add('correct');
+      }
+    });
+    const fb = box.querySelector('.quiz-feedback');
+    fb.classList.add('show', val.correct ? 'right' : 'wrong-fb');
+    fb.textContent = val.correct ? '✅ Correct!' : '❌ Incorrect. The correct answer is highlighted above.';
+  });
+}
+
+/* ─── Copy code ─── */
+function copyCode(btn){
+  const pre = btn.closest('.code-wrapper').querySelector('pre');
+  const text = pre.textContent.replace(/^\d+\s*/gm,''); // strip line numbers
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+/* ─── Quiz ─── */
+function checkQuiz(opt, isCorrect){
+  const box = opt.closest('.quiz-box');
+  if(box.dataset.done) return;
+  box.dataset.done = '1';
+  const opts = Array.from(box.querySelectorAll('.quiz-option'));
+  const selectedIdx = opts.indexOf(opt);
+  let correctIdx = opts.findIndex(o => {
+    // find the correct one by checking all onclick attrs
+    return o.getAttribute('onclick').includes('true');
+  });
+  opts.forEach(o => o.classList.add('disabled'));
+  if(isCorrect){
+    opt.classList.add('correct');
+  } else {
+    opt.classList.add('wrong');
+    // highlight correct
+    opts.forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  const fb = box.querySelector('.quiz-feedback');
+  fb.classList.add('show');
+  if(isCorrect){
+    fb.classList.add('right');
+    fb.textContent = '✅ Correct! Well done.';
+  } else {
+    fb.classList.add('wrong-fb');
+    fb.textContent = '❌ Incorrect. The correct answer is highlighted above.';
+  }
+  // Save
+  const key = box.dataset.quiz;
+  quizAnswered[key] = {selected:selectedIdx, correct:isCorrect, correctIdx};
+  localStorage.setItem('flaskQuizAnswered', JSON.stringify(quizAnswered));
+}
+
+/* ─── Architecture Diagram ─── */
+const archTexts = [
+  '<strong>Browser (Client)</strong><br>The browser (Chrome, Firefox, etc.) is the <em>client</em>. It is the starting point: the user types a URL or clicks a link, and the browser creates an HTTP request and sends it to the server.',
+  '<strong>HTTP Request</strong><br>The browser packages the URL, method (GET/POST), headers, and optional body into an HTTP request message and sends it over the network to the Flask server.',
+  '<strong>Flask Application</strong><br>Your Flask app (<code>app = Flask(__name__)</code>) receives the incoming request. It acts as the central coordinator, reading the URL and deciding which route matches.',
+  '<strong>@app.route()</strong><br>Flask checks the URL against all registered routes. When it finds a match, it identifies the corresponding Python function to call. If no match is found, it returns a 404 error.',
+  '<strong>Python Function (View)</strong><br>The matched view function executes your Python logic — processing data, querying a database, building HTML — and returns a value.',
+  '<strong>HTTP Response</strong><br>Flask wraps the function\'s return value into a proper HTTP response with a status code (200 OK), headers, and the body content.',
+  '<strong>Browser (Displays)</strong><br>The browser receives the response and renders the content. If it\'s HTML, you see a formatted web page. If it\'s plain text or JSON, the browser displays it as-is.'
+];
+function showArch(idx){
+  const nodes = document.querySelectorAll('#archDiagram .arch-node');
+  nodes.forEach((n,i) => n.classList.toggle('selected', i===idx));
+  const el = document.getElementById('archExplain');
+  el.innerHTML = archTexts[idx];
+  el.classList.add('visible');
+}
+
+/* ─── Tabs ─── */
+function switchTab(btn, id){
+  const parent = btn.closest('.demo-box');
+  parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  parent.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ─── Route demo ─── */
+function routeDemo(url){
+  const out = document.getElementById('routeDemoOut');
+  const routes = {
+    '/': {fn:'home()', resp:'Home Page'},
+    '/about': {fn:'about()', resp:'About Page'},
+    '/contact': {fn:'contact()', resp:'Contact Page'},
+  };
+  if(routes[url]){
+    out.innerHTML = `<span style="color:var(--text2)">URL:</span> ${url}\n<span style="color:var(--text2)">Matched route:</span> @app.route("${url}")\n<span style="color:var(--text2)">Function called:</span> ${routes[url].fn}\n<span style="color:var(--green)">Browser shows:</span> ${routes[url].resp}`;
+  } else {
+    out.innerHTML = `<span style="color:var(--text2)">URL:</span> ${url}\n<span style="color:var(--red)">❌ No matching route found!</span>\n<span style="color:var(--red)">Browser shows:</span> 404 Not Found`;
+  }
+}
+
+/* ─── Form demo ─── */
+function formDemo(){
+  const name = document.getElementById('formDemoInput').value.trim();
+  const out = document.getElementById('formDemoOut');
+  if(!name){
+    out.innerHTML = '<span style="color:var(--orange)">⚠️ Please enter a username first.</span>';
+    return;
+  }
+  out.innerHTML = `<span style="color:var(--text2)">Method:</span> POST\n<span style="color:var(--text2)">request.form:</span> {"username": "${name}"}\n<span style="color:var(--text2)">request.form.get("username"):</span> "${name}"\n<span style="color:var(--green)">Browser shows:</span> Welcome ${name}`;
+}
+
+/* ─── Dynamic route demo ─── */
+function dynamicDemo(){
+  const name = document.getElementById('dynName').value.trim();
+  const id = document.getElementById('dynId').value.trim();
+  const out = document.getElementById('dynDemoOut');
+  if(!name && !id){
+    out.innerHTML = '<span style="color:var(--orange)">⚠️ Please enter at least a name or ID.</span>';
+    return;
+  }
+  let lines = [];
+  if(name && !id){
+    lines.push(`<span style="color:var(--text2)">Route:</span> @app.route("/student/<name>")`);
+    lines.push(`<span style="color:var(--text2)">URL:</span> /student/${name}`);
+    lines.push(`<span style="color:var(--text2)">name =</span> "${name}"`);
+    lines.push(`<span style="color:var(--green)">Browser shows:</span> Student Name: ${name}`);
+  } else if(!name && id){
+    if(!/^\d+$/.test(id)){
+      lines.push(`<span style="color:var(--red)">❌ "${id}" is not a valid integer. Flask returns 404.</span>`);
+    } else {
+      lines.push(`<span style="color:var(--text2)">Route:</span> @app.route("/student/<int:id>")`);
+      lines.push(`<span style="color:var(--text2)">URL:</span> /student/${id}`);
+      lines.push(`<span style="color:var(--text2)">id =</span> ${id}`);
+      lines.push(`<span style="color:var(--green)">Browser shows:</span> Student ID: ${id}`);
+    }
+  } else {
+    if(!/^\d+$/.test(id)){
+      lines.push(`<span style="color:var(--red)">❌ "${id}" is not a valid integer. Flask returns 404.</span>`);
+    } else {
+      lines.push(`<span style="color:var(--text2)">Route:</span> @app.route("/student/<name>/<int:id>")`);
+      lines.push(`<span style="color:var(--text2)">URL:</span> /student/${name}/${id}`);
+      lines.push(`<span style="color:var(--text2)">name =</span> "${name}", <span style="color:var(--text2)">id =</span> ${id}`);
+      lines.push(`<span style="color:var(--green)">Browser shows:</span> Name: ${name}, ID: ${id}`);
+    }
+  }
+  out.innerHTML = lines.join('\n');
+}
+
+/* ─── url_for demo ─── */
+function urlForChange(){
+  const sel = document.getElementById('urlForFunc').value;
+  document.getElementById('urlForParam').style.display = sel === 'student' ? 'block' : 'none';
+}
+function urlForDemo(){
+  const fn = document.getElementById('urlForFunc').value;
+  const out = document.getElementById('urlForOut');
+  const routes = {home:'/', about:'/about', contact:'/contact'};
+  if(fn === 'student'){
+    const name = document.getElementById('urlForName').value.trim() || 'Ravi';
+    out.innerHTML = `<span style="color:var(--text2)">url_for("student", name="${name}")</span>\n<span style="color:var(--green)">→  /student/${name}</span>`;
+  } else {
+    out.innerHTML = `<span style="color:var(--text2)">url_for("${fn}")</span>\n<span style="color:var(--green)">→  ${routes[fn]}</span>`;
+  }
+}
+
+/* ─── Init ─── */
+updateUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}System Reports — Health Claims Simulator{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-bar-chart-line text-primary me-2"></i>Aggregated Reports & Analytics</h3>
+        <p class="text-muted small mb-0">System metrics, financial aggregates, and lifecycle breakdown</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.settlements_list') }}" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-cash-stack me-1"></i> Settlements
+        </a>
+    </div>
+</div>
+
+<!-- Financial Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-primary">
+            <div class="text-muted small text-uppercase fw-semibold">Total Claims Filed</div>
+            <div class="fs-3 fw-bold text-primary">{{ total_claims }}</div>
+            <small class="text-muted">All active & completed claims</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-secondary">
+            <div class="text-muted small text-uppercase fw-semibold">Total Billed / Requested</div>
+            <div class="fs-3 fw-bold text-secondary">{{ total_requested|format_inr }}</div>
+            <small class="text-muted">Gross claimed charges</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-info">
+            <div class="text-muted small text-uppercase fw-semibold">Total Assessed Eligible</div>
+            <div class="fs-3 fw-bold text-info">{{ total_eligible|format_inr }}</div>
+            <small class="text-muted">Approved admissible amount</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-success">
+            <div class="text-muted small text-uppercase fw-semibold">Total Simulated Paid</div>
+            <div class="fs-3 fw-bold text-success">{{ total_settled|format_inr }}</div>
+            <small class="text-muted">Net insurer simulated payouts</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Status Breakdown -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 bg-white h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-secondary"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Claims by Status</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Status Stage</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for st in ['draft', 'submitted', 'in_review', 'more_info', 'approved', 'rejected', 'paid'] %}
+                        {% set count = status_counts.get(st, 0) %}
+                        <tr>
+                            <td><span class="badge badge-status badge-{{ st }}">{{ st }}</span></td>
+                            <td class="text-end fw-bold">{{ count }}</td>
+                            <td class="text-end small text-muted">
+                                {% if total_claims > 0 %}{{ "%.1f"|format((count / total_claims) * 100) }}%{% else %}0%{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claim Type Breakdown -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 bg-white h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-secondary"><i class="bi bi-diagram-3-fill text-info me-2"></i>Claims by Type</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Claim Facility</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="badge bg-info-subtle text-info-emphasis px-2">Cashless</span>
+                                <small class="text-muted d-block">Direct settlement to Network Hospital</small>
+                            </td>
+                            <td class="text-end fw-bold">{{ type_counts.get('cashless', 0) }}</td>
+                            <td class="text-end small text-muted">
+                                {% if total_claims > 0 %}{{ "%.1f"|format((type_counts.get('cashless', 0) / total_claims) * 100) }}%{% else %}0%{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-dark px-2">Reimbursement</span>
+                                <small class="text-muted d-block">Payout to Policyholder post-discharge</small>
+                            </td>
+                            <td class="text-end fw-bold">{{ type_counts.get('reimbursement', 0) }}</td>
+                            <td class="text-end small text-muted">
+                                {% if total_claims > 0 %}{{ "%.1f"|format((type_counts.get('reimbursement', 0) / total_claims) * 100) }}%{% else %}0%{% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="mt-4 p-3 bg-light rounded text-muted small">
+                    <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                    All financial figures represent classroom simulation computations. No real currency is transferred or stored.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

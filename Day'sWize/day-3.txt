@@ -1,0 +1,5 @@
+Request .get
+Request.arugements
+
+
+Taking the Data from the js and sent to the server

@@ -1,0 +1,656 @@
+/* ==========================================================================
+   CarePulse Claims Platform - Modern Enterprise Healthtech Stylesheet
+   Designed specifically for Prem Health Claims Simulator
+   Colorway: Deep Slate Navy (#0f172a), Cobalt Blue (#2563eb), Emerald (#10b981), Cyan (#06b6d4)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Primary & Accent Palettes */
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-soft: #eff6ff;
+  --brand-cyan: #06b6d4;
+  --brand-cyan-soft: #ecfeff;
+  --brand-emerald: #10b981;
+  --brand-emerald-soft: #ecfdf5;
+  --brand-indigo: #4f46e5;
+  --brand-indigo-soft: #eef2ff;
+  --brand-amber: #f59e0b;
+  --brand-amber-soft: #fffbeb;
+  --brand-rose: #f43f5e;
+  --brand-rose-soft: #fff1f2;
+  
+  /* Slate Canvas & Surfaces */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  
+  /* Deep Navy Header / Nav */
+  --nav-bg: #0f172a;
+  --nav-border: #1e293b;
+  --nav-text: #94a3b8;
+  --nav-text-hover: #ffffff;
+  --nav-active-bg: #1e293b;
+  
+  /* Typography */
+  --text-heading: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  
+  /* Borders & Shadows */
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-focus: #3b82f6;
+  
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+  /* Bootstrap Variable Overrides */
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-body-font-family: var(--font-family);
+  --bs-body-bg: var(--bg-page);
+  --bs-body-color: var(--text-body);
+}
+
+/* Base resets & typography */
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-heading);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+a {
+  color: var(--brand-primary);
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+a:hover {
+  color: var(--brand-primary-hover);
+}
+
+/* ==========================================================================
+   Top Navigation Bar (Sleek Dark Slate Header with Frosted Effect)
+   ========================================================================== */
+.carepulse-navbar {
+  background-color: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--nav-border);
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+}
+
+.carepulse-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+}
+
+.brand-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.carepulse-brand .brand-highlight {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.carepulse-navbar .nav-link {
+  color: var(--nav-text) !important;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.carepulse-navbar .nav-link:hover {
+  color: var(--nav-text-hover) !important;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.carepulse-navbar .nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.user-badge-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  color: #ffffff;
+}
+
+.user-avatar-initials {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.user-role-chip {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(37, 99, 235, 0.25);
+  color: #93c5fd;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Page Layout Shell
+   ========================================================================== */
+.app-content-container {
+  flex: 1 0 auto;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.app-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color);
+  background-color: #ffffff;
+  padding: 1.25rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Cards & Surfaces
+   ========================================================================== */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: #cbd5e1;
+}
+
+.card-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.1rem 1.4rem;
+  font-weight: 700;
+  border-top-left-radius: 14px !important;
+  border-top-right-radius: 14px !important;
+  color: var(--text-heading);
+}
+
+.card-body {
+  padding: 1.4rem;
+}
+
+/* Modern Metric / KPI Card */
+.metric-card {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 1.4rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.metric-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.metric-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.metric-icon-blue { background: var(--brand-primary-soft); color: var(--brand-primary); }
+.metric-icon-emerald { background: var(--brand-emerald-soft); color: var(--brand-emerald); }
+.metric-icon-indigo { background: var(--brand-indigo-soft); color: var(--brand-indigo); }
+.metric-icon-amber { background: var(--brand-amber-soft); color: var(--brand-amber); }
+
+.metric-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-value {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+  margin: 0.25rem 0 0 0;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.btn {
+  font-weight: 600;
+  border-radius: 9px;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--brand-primary-hover);
+  border-color: var(--brand-primary-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  color: var(--brand-primary);
+  border-color: #bfdbfe;
+  background-color: #ffffff;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: #ffffff;
+}
+
+.btn-outline-secondary {
+  color: var(--text-body);
+  border-color: var(--border-color);
+  background-color: #ffffff;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--bg-subtle);
+  border-color: #cbd5e1;
+  color: var(--text-heading);
+}
+
+.btn-success {
+  background-color: var(--brand-emerald);
+  border-color: var(--brand-emerald);
+}
+.btn-success:hover {
+  background-color: #059669;
+  border-color: #059669;
+}
+
+/* ==========================================================================
+   Forms & Inputs
+   ========================================================================== */
+.form-label {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-heading);
+  margin-bottom: 0.4rem;
+}
+
+.form-control, .form-select {
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  color: var(--text-heading);
+  background-color: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+.form-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+.table {
+  --bs-table-bg: transparent;
+  color: var(--text-body);
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: #f8fafc;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1rem;
+}
+
+.table tbody td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.92rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.6);
+}
+
+/* ==========================================================================
+   Status Badges (Crisp, High-contrast Pastel Pills)
+   ========================================================================== */
+.badge {
+  font-weight: 600;
+  font-size: 0.76rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+.status-draft {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.status-submitted {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.status-hospital_check {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.status-policy_check {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.status-in_review {
+  background-color: #fdf4ff;
+  color: #a21caf;
+  border: 1px solid #f5d0fe;
+}
+
+.status-more_info {
+  background-color: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.status-approved {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.status-rejected {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.status-paid {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* ==========================================================================
+   Timeline / Step Tracker
+   ========================================================================== */
+.timeline {
+  border-left: 2px solid #e2e8f0;
+  margin-left: 0.75rem;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.25rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.72rem;
+  top: 0.25rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+/* ==========================================================================
+   Brand New Modern Login Experience (CarePulse Authenticator)
+   ========================================================================== */
+.login-page-wrapper {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(6, 182, 212, 0.08), transparent 40%),
+              #f8fafc;
+}
+
+.login-auth-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+}
+
+.login-auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-auth-logo-pulse {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.2rem;
+  background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.login-auth-header h1 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin-bottom: 0.4rem;
+}
+
+.login-auth-header p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin-bottom: 0;
+}
+
+.role-quick-selector {
+  background: var(--bg-subtle);
+  border-radius: 12px;
+  padding: 0.85rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.role-quick-selector-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.role-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+}
+
+.role-pill-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.role-pill-btn:hover {
+  background: var(--brand-primary-soft);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.role-pill-btn .role-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--brand-primary);
+}
+
+/* ==========================================================================
+   Alerts & Utilities
+   ========================================================================== */
+.alert {
+  border-radius: 12px;
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+  padding: 1rem 1.25rem;
+}
+
+.alert-success {
+  background-color: var(--brand-emerald-soft);
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.alert-danger {
+  background-color: var(--brand-rose-soft);
+  border-color: #fecdd3;
+  color: #9f1239;
+}
+
+.alert-info {
+  background-color: var(--brand-cyan-soft);
+  border-color: #a5f3fc;
+  color: #0e7490;
+}
+
+.alert-warning {
+  background-color: var(--brand-amber-soft);
+  border-color: #fde68a;
+  color: #92400e;
+}

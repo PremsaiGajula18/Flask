@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing Plans — Recruitify ATS{% endblock %}
+
+{% block content %}
+<!-- Header Hero -->
+<section class="page-hero-header">
+  <div class="container">
+    <span class="section-badge">TRANSPARENT PRICING</span>
+    <h1 class="page-hero-title">Simple Plans for Growing & Enterprise Teams</h1>
+    <p class="page-hero-subtitle">
+      No hidden fees, no seat lock-ins. Pick the plan that matches your current hiring volume and scale as you grow.
+    </p>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="section-padding">
+  <div class="container">
+
+    <!-- Annual/Monthly Toggle -->
+    <div class="pricing-toggle-wrap">
+      <span class="pricing-toggle-label">Monthly Billing</span>
+      <label class="switch-pill">
+        <input type="checkbox" id="billingSwitch">
+        <span class="slider-pill"></span>
+      </label>
+      <span class="pricing-toggle-label">
+        Annual Billing <span class="discount-badge">SAVE 20%</span>
+      </span>
+    </div>
+
+    <!-- 3 Pricing Cards Grid -->
+    <div class="pricing-grid">
+      <!-- Starter Plan -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">Starter</div>
+        <div class="pricing-plan-desc">Ideal for small startups and boutique agencies hiring 1-5 roles per month.</div>
+        <div class="pricing-amount" data-monthly="49" data-annual="39">$49 <span>/month</span></div>
+        <ul class="pricing-features-list">
+          <li><i class="fa-solid fa-check"></i> Up to 5 Active Job Postings</li>
+          <li><i class="fa-solid fa-check"></i> 500 AI Resume Screenings / mo</li>
+          <li><i class="fa-solid fa-check"></i> Basic Kanban Pipeline</li>
+          <li><i class="fa-solid fa-check"></i> 2 Team Member Accounts</li>
+          <li><i class="fa-solid fa-xmark"></i> <span style="color: #94a3b8;">Video Assessment Suite</span></li>
+        </ul>
+        <a href="{{ url_for('register') }}" class="btn-outline-white" style="border-color: var(--brand-petrol); color: var(--brand-petrol); text-align: center; justify-content: center;">
+          Start Free Trial
+        </a>
+      </div>
+
+      <!-- Professional Plan (Most Popular) -->
+      <div class="pricing-card popular">
+        <span class="popular-ribbon">MOST POPULAR</span>
+        <div class="pricing-plan-name">Professional</div>
+        <div class="pricing-plan-desc">For fast-scaling companies needing advanced AI screening and automated scheduling.</div>
+        <div class="pricing-amount" data-monthly="149" data-annual="119">$149 <span>/month</span></div>
+        <ul class="pricing-features-list">
+          <li><i class="fa-solid fa-check"></i> Unlimited Active Job Postings</li>
+          <li><i class="fa-solid fa-check"></i> 5,000 AI Resume Screenings / mo</li>
+          <li><i class="fa-solid fa-check"></i> Advanced Drag & Drop Pipeline</li>
+          <li><i class="fa-solid fa-check"></i> Smart Calendar Auto-Scheduling</li>
+          <li><i class="fa-solid fa-check"></i> 10 Team Member Accounts</li>
+          <li><i class="fa-solid fa-check"></i> Async Video Assessment Suite</li>
+        </ul>
+        <a href="{{ url_for('register') }}" class="btn-green-pill" style="justify-content: center;">
+          Start 14-Day Free Trial
+        </a>
+      </div>
+
+      <!-- Enterprise Plan -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">Enterprise</div>
+        <div class="pricing-plan-desc">Custom security, unlimited seats, dedicated customer success manager, and API access.</div>
+        <div class="pricing-amount" data-monthly="399" data-annual="319">$399 <span>/month</span></div>
+        <ul class="pricing-features-list">
+          <li><i class="fa-solid fa-check"></i> Unlimited Sourcing & AI Screening</li>
+          <li><i class="fa-solid fa-check"></i> Custom Hiring Workflow Stages</li>
+          <li><i class="fa-solid fa-check"></i> SAML SSO & Okta Integration</li>
+          <li><i class="fa-solid fa-check"></i> Unlimited Team Member Seats</li>
+          <li><i class="fa-solid fa-check"></i> Dedicated Account Manager & SLA</li>
+          <li><i class="fa-solid fa-check"></i> Custom REST API Access</li>
+        </ul>
+        <a href="{{ url_for('contact') }}" class="btn-outline-white" style="border-color: var(--brand-petrol); color: var(--brand-petrol); text-align: center; justify-content: center;">
+          Contact Sales Team
+        </a>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div style="margin-top: 80px;" id="faq">
+      <div class="section-header-center">
+        <span class="section-badge">FREQUENTLY ASKED QUESTIONS</span>
+        <h2 class="section-title">Got Questions? We Have Answers</h2>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item active">
+          <button class="faq-question">
+            <span>Can I change or cancel my plan at any time?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Yes! You can upgrade, downgrade, or cancel your subscription at any time directly from your account settings with zero cancellation penalties.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is candidate data protected under GDPR and SOC2 standards?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Absolutely. All candidate data is encrypted in transit (TLS 1.3) and at rest (AES-256). We are fully GDPR compliant and SOC2 Type II certified.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Do I need a credit card to start the 14-day trial?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            No credit card is required to sign up for our 14-day free trial. You get full access to all Professional features immediately.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

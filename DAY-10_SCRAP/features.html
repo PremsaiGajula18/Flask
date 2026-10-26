@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Recruitify Features — AI Sourcing, ATS Pipeline & Video Screening">
+  <title>Features — Recruitify ATS Platform</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="site-navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+          <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+          <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+        </svg>
+        Recruitify<span>.</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a></li>
+        <li><a href="features.html" class="nav-link active"><i class="fa-solid fa-wand-magic-sparkles"></i> Features</a></li>
+        <li><a href="pricing.html" class="nav-link"><i class="fa-solid fa-tags"></i> Pricing</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-users"></i> About Us</a></li>
+        <li><a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact</a></li>
+        <li><a href="dashboard.html" class="nav-link"><i class="fa-solid fa-chart-kanban"></i> ATS Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-nav-ghost">Log In</a>
+        <a href="register.html" class="btn-green-pill">Get Started <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="features.html" class="nav-link active">Features</a>
+      <a href="pricing.html" class="nav-link">Pricing</a>
+      <a href="about.html" class="nav-link">About Us</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <a href="dashboard.html" class="nav-link">ATS Dashboard</a>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 8px 0;">
+      <a href="login.html" class="btn-outline-white" style="text-align: center;">Log In</a>
+      <a href="register.html" class="btn-green-pill" style="justify-content: center;">Get Started Free</a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main>
+    <section class="page-hero-header">
+      <div class="container">
+        <span class="section-badge">ENTERPRISE RECRUITING PLATFORM</span>
+        <h1 class="page-hero-title">Powerful Features Built to Automate Hiring</h1>
+        <p class="page-hero-subtitle">
+          From AI resume screening to interactive Kanban candidate pipelines and automated video assessments, explore everything Recruitify has to offer.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-padding">
+      <div class="container">
+        <!-- Deep Dive 1 -->
+        <div class="feature-deep-dive-row">
+          <div class="feature-content">
+            <span class="section-badge">AI MATCHING & PARSING</span>
+            <h2>Screen Resumes 10x Faster with Semantic AI</h2>
+            <p>No more manual keyword scanning. Our deep-learning parser extracts candidate work history, skill proficiencies, education credentials, and career progression instantly.</p>
+            <ul class="feature-bullets">
+              <li><i class="fa-solid fa-circle-check"></i> Multi-language resume parsing (PDF, DOCX, LinkedIn PDF)</li>
+              <li><i class="fa-solid fa-circle-check"></i> Automated candidate match percentage score (0 - 100%)</li>
+              <li><i class="fa-solid fa-circle-check"></i> Unbiased blind screening mode to remove subconscious hiring bias</li>
+            </ul>
+          </div>
+          <div class="feature-mockup-box">
+            <div style="font-weight: 700; font-size: 1.1rem; color: var(--brand-green); margin-bottom: 12px;">
+              <i class="fa-solid fa-robot"></i> Recruitify AI Scorecard Sample
+            </div>
+            <div style="background: rgba(255,255,255,0.06); padding: 16px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                <span>Sarah Jenkins (Senior Frontend Engineer)</span>
+                <span style="color: var(--brand-green); font-weight: 800;">94% Match</span>
+              </div>
+              <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden;">
+                <div style="width: 94%; height: 100%; background: var(--brand-green);"></div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-light-teal); margin-top: 8px;">
+                Highlights: 6+ yrs React/TypeScript, Lead Architecture at FinTech, Strong Open Source presence.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep Dive 2 -->
+        <div class="feature-deep-dive-row reverse">
+          <div class="feature-content">
+            <span class="section-badge">DYNAMIC PIPELINE</span>
+            <h2>Interactive Drag & Drop Applicant Kanban</h2>
+            <p>Keep your hiring team aligned. Move candidates smoothly through stages, leave internal notes, assign interviewers, and trigger automated candidate emails upon status changes.</p>
+            <ul class="feature-bullets">
+              <li><i class="fa-solid fa-circle-check"></i> Custom hiring stage configuration per role</li>
+              <li><i class="fa-solid fa-circle-check"></i> One-click interview scheduling & feedback collection</li>
+              <li><i class="fa-solid fa-circle-check"></i> Team scorecards & structured evaluation forms</li>
+            </ul>
+          </div>
+          <div class="feature-mockup-box">
+            <div style="font-weight: 700; font-size: 1.1rem; color: var(--brand-green); margin-bottom: 12px;">
+              <i class="fa-solid fa-chart-kanban"></i> Live Stage Kanban Pipeline
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1; background: rgba(255,255,255,0.08); padding: 10px; border-radius: 6px; font-size: 0.8rem;">
+                <div style="font-weight: 700; margin-bottom: 6px;">Sourced (12)</div>
+                <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px; margin-bottom: 4px;">Alex Rivera</div>
+              </div>
+              <div style="flex: 1; background: rgba(0,230,118,0.15); border: 1px solid var(--brand-green-border); padding: 10px; border-radius: 6px; font-size: 0.8rem;">
+                <div style="font-weight: 700; color: var(--brand-green); margin-bottom: 6px;">Interview (4)</div>
+                <div style="background: rgba(4,52,66,0.8); padding: 6px; border-radius: 4px;">Marcus Vance</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom-bar">
+        <div>© 2026 Recruitify Inc. All rights reserved. Multi-Page Layout.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="static/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}My Policies — Health Claims Simulator{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-medical text-primary me-2"></i>My Policies & Coverage Terms</h3>
+        <p class="text-muted small mb-0">Active health insurance coverage, detailed plan features, and covered family members</p>
+    </div>
+    <div>
+        <a href="{{ url_for('claims.create_claim') }}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> File Reimbursement Claim
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 1: USER'S SUBSCRIBED POLICIES -->
+<div class="row g-4 mb-5">
+    {% for item in policies %}
+    {% set pol = item.policy %}
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100 bg-white">
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0">Policy #{{ pol.id }} &bull; {{ pol.plan.insurer }} {{ pol.plan.name }}</h5>
+                    <small class="text-white-50">Sum Insured: {{ pol.plan.sum_insured_display }}</small>
+                </div>
+                <span class="badge bg-light text-primary text-uppercase px-2 py-1">{{ pol.status }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Coverage Period</small>
+                        <strong>{{ pol.start_date }} to {{ pol.end_date }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Restoration Benefit</small>
+                        <span class="badge bg-success-subtle text-success-emphasis">{{ pol.plan.restoration_benefit }}</span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 mb-3">
+                    <div class="row text-center">
+                        <div class="col-4 border-end">
+                            <small class="text-muted d-block">Annual Limit</small>
+                            <span class="fw-bold text-dark">{{ pol.plan.annual_limit_inr|format_inr }}</span>
+                        </div>
+                        <div class="col-4 border-end">
+                            <small class="text-muted d-block">Prior Paid Claims</small>
+                            <span class="fw-bold text-danger">{{ item.prior_paid|format_inr }}</span>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block">Remaining Cover</small>
+                            <span class="fw-bold text-success">{{ item.remaining_cover|format_inr }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Detailed Feature Highlights -->
+                <div class="row g-2 small text-muted mb-3 bg-body-tertiary p-2 rounded">
+                    <div class="col-6"><i class="bi bi-door-open me-1 text-primary"></i> Room Rent: <strong>{{ pol.plan.room_rent_limit }}</strong></div>
+                    <div class="col-6"><i class="bi bi-clock-history me-1 text-primary"></i> Pre/Post: <strong>{{ pol.plan.pre_hospitalization_days }}/{{ pol.plan.post_hospitalization_days }} Days</strong></div>
+                    <div class="col-6"><i class="bi bi-box2 me-1 text-primary"></i> Consumables: <strong>{{ pol.plan.consumables_cover }}</strong></div>
+                    <div class="col-6"><i class="bi bi-capsule me-1 text-primary"></i> AYUSH: <strong>{{ pol.plan.ayush_cover }}</strong></div>
+                    <div class="col-6"><i class="bi bi-bandaid me-1 text-primary"></i> OPD / Dental: <strong>{{ pol.plan.opd_dental_cover }}</strong></div>
+                    <div class="col-6"><i class="bi bi-snow me-1 text-primary"></i> Age Freeze: <strong>{{ pol.plan.age_freeze }}</strong></div>
+                    <div class="col-12"><i class="bi bi-graph-up-arrow me-1 text-success"></i> Bonus: <strong>{{ pol.plan.bonus_multiplier }}</strong></div>
+                    <div class="col-12"><i class="bi bi-hourglass-split me-1 text-warning"></i> Waiting Period: <strong>{{ pol.plan.waiting_period_ped }}</strong></div>
+                </div>
+
+                <h6 class="fw-bold small text-uppercase text-secondary mt-3 mb-2">
+                    <i class="bi bi-people-fill me-1"></i> Covered Family Members
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Relationship</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in pol.members %}
+                            <tr>
+                                <td>#{{ m.id }}</td>
+                                <td><strong>{{ m.display_name }}</strong></td>
+                                <td><span class="badge bg-secondary-subtle text-dark text-capitalize">{{ m.relationship }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top text-end">
+                <a href="{{ url_for('claims.create_claim') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-send-plus me-1"></i> Claim on this Policy
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- SECTION 2: TOP 5 BEST HEALTH INSURANCE PLANS IN INDIA (COVERAGE COMPARISON TABLE) -->
+<div class="card shadow-sm border-0 bg-white mb-4">
+    <div class="card-header bg-dark text-white py-3">
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-table text-warning me-2"></i> Comprehensive Policy Comparison: Top 5 Health Insurance Plans in India
+        </h5>
+        <small class="text-white-50">Compare key policy features, restoration rules, room rent caps, consumables, and OPD benefits</small>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0 text-center small">
+                <thead class="table-primary text-uppercase" style="font-size: 0.8rem;">
+                    <tr>
+                        <th class="text-start py-3 ps-3" style="width: 18%;">FEATURE</th>
+                        <th class="py-3" style="width: 16%;">1. HDFC ERGO<br><span class="fw-bold text-primary">Optima Secure</span></th>
+                        <th class="py-3" style="width: 16%;">2. STAR HEALTH<br><span class="fw-bold text-primary">Super Star</span></th>
+                        <th class="py-3" style="width: 16%;">3. CARE HEALTH<br><span class="fw-bold text-primary">Care Supreme</span></th>
+                        <th class="py-3" style="width: 16%;">4. NIVA BUPA<br><span class="fw-bold text-primary">ReAssure 2.0</span></th>
+                        <th class="py-3" style="width: 18%;">5. ADITYA BIRLA<br><span class="fw-bold text-primary">Activ One MAX</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Sum Insured (SI)</td>
+                        <td>₹5 L – ₹2 Crore</td>
+                        <td>₹5 L – ₹1 Cr / Unlimited</td>
+                        <td>₹5 L – ₹1 Crore</td>
+                        <td>₹5 L – ₹1 Crore</td>
+                        <td>₹5 L – ₹6 Crore</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Restoration Benefit</td>
+                        <td><span class="badge bg-info-subtle text-dark">100% (Unlimited add-on)</span></td>
+                        <td><span class="badge bg-success-subtle text-dark">Unlimited (Related+Unrelated)</span></td>
+                        <td><span class="badge bg-success-subtle text-dark">Unlimited (Related+Unrelated)</span></td>
+                        <td><span class="badge bg-success text-white">Unlimited Forever (from 1st claim)</span></td>
+                        <td><span class="badge bg-success-subtle text-dark">Unlimited (Related+Unrelated)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Pre / Post Hospitalisation</td>
+                        <td>60 / 180 Days</td>
+                        <td><strong class="text-success">90 / 180 Days</strong></td>
+                        <td>60 / 180 Days</td>
+                        <td>60 / 180 Days</td>
+                        <td><strong class="text-success">90 / 180 Days</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Room Rent Limit</td>
+                        <td><span class="badge bg-success-subtle text-success">No Cap (Single AC)</span></td>
+                        <td><span class="badge bg-success-subtle text-success">No Cap</span></td>
+                        <td><span class="badge bg-success-subtle text-success">No Cap</span></td>
+                        <td><span class="badge bg-success-subtle text-success">No Cap</span></td>
+                        <td><span class="badge bg-success-subtle text-success">No Cap</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">AYUSH Cover</td>
+                        <td>Included up to SI</td>
+                        <td>Included up to SI</td>
+                        <td>Included up to SI</td>
+                        <td>Included up to SI</td>
+                        <td>Included up to SI</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Consumables Cover</td>
+                        <td><strong class="text-success">Included</strong> (Protect)</td>
+                        <td><strong class="text-success">Included</strong></td>
+                        <td>Via Add-on (Claim Shield)</td>
+                        <td>Via Add-on (Safeguard+)</td>
+                        <td><strong class="text-success">Included</strong> (Super Care)</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">OPD / Dental</td>
+                        <td><span class="badge bg-secondary-subtle text-muted">No</span></td>
+                        <td><span class="badge bg-success">Yes (OPD & Dental)</span></td>
+                        <td><span class="badge bg-secondary-subtle text-muted">No (Rider)</span></td>
+                        <td><span class="badge bg-secondary-subtle text-muted">No (Rider)</span></td>
+                        <td><span class="badge bg-success">Yes (OPD Perks)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Age Freeze / Lock-Clock</td>
+                        <td>No</td>
+                        <td><span class="badge bg-warning text-dark">Yes (Until 1st claim)</span></td>
+                        <td>No</td>
+                        <td><span class="badge bg-warning text-dark">Yes (Locks entry age)</span></td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Co-payment</td>
+                        <td>None</td>
+                        <td>None mandatory</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Bonus / Multiplier</td>
+                        <td>2X Day-1 &rarr; 4X in 2 yrs</td>
+                        <td>Up to 100% bonus</td>
+                        <td>50%/yr &rarr; up to 500%</td>
+                        <td>Booster+: Carries over up to 10X</td>
+                        <td>200% - 300% Super Booster</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-start ps-3">Waiting Period (PED)</td>
+                        <td>3 Yrs (Reducible to 1-2)</td>
+                        <td>3 Yrs (Reducible to 1-2)</td>
+                        <td>3 Yrs (Reducible to 1-2)</td>
+                        <td>3 Yrs (Reducible to 1-2)</td>
+                        <td>3 Yrs (Day-1 chronic available)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

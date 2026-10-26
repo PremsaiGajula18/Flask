@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Recruitify — All-in-One AI-Powered Recruiting Tool & Applicant Tracking System (ATS). Streamline hiring, screen talent, and build high-performing teams.">
+  <title>{% block title %}Recruitify — Modern AI Recruiting & ATS Platform{% endblock %}</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP NAVIGATION BAR
+       ========================================================================== -->
+  <header class="site-navbar">
+    <div class="nav-container">
+      <!-- Logo -->
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+          <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+          <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+        </svg>
+        Recruitify<span>.</span>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <ul class="nav-menu">
+        <li>
+          <a href="{{ url_for('index') }}" class="nav-link {{ 'active' if active_page == 'home' else '' }}">
+            <i class="fa-solid fa-house"></i> Home
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('features') }}" class="nav-link {{ 'active' if active_page == 'features' else '' }}">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Features
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('pricing') }}" class="nav-link {{ 'active' if active_page == 'pricing' else '' }}">
+            <i class="fa-solid fa-tags"></i> Pricing
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('about') }}" class="nav-link {{ 'active' if active_page == 'about' else '' }}">
+            <i class="fa-solid fa-users"></i> About Us
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('contact') }}" class="nav-link {{ 'active' if active_page == 'contact' else '' }}">
+            <i class="fa-solid fa-envelope"></i> Contact
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('dashboard') }}" class="nav-link {{ 'active' if active_page == 'dashboard' else '' }}">
+            <i class="fa-solid fa-chart-kanban"></i> ATS Dashboard
+          </a>
+        </li>
+      </ul>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+        {% if current_user %}
+          <div style="color: var(--text-white); font-weight: 600; font-size: 0.9rem;">
+            <i class="fa-solid fa-user-circle" style="color: var(--brand-green);"></i> {{ current_user.full_name }}
+          </div>
+          <form action="{{ url_for('logout') }}" method="POST" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="btn-nav-ghost">Logout</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn-nav-ghost">Log In</a>
+          <a href="{{ url_for('register') }}" class="btn-green-pill">
+            Get Started <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <a href="{{ url_for('index') }}" class="nav-link {{ 'active' if active_page == 'home' else '' }}">Home</a>
+      <a href="{{ url_for('features') }}" class="nav-link {{ 'active' if active_page == 'features' else '' }}">Features</a>
+      <a href="{{ url_for('pricing') }}" class="nav-link {{ 'active' if active_page == 'pricing' else '' }}">Pricing</a>
+      <a href="{{ url_for('about') }}" class="nav-link {{ 'active' if active_page == 'about' else '' }}">About Us</a>
+      <a href="{{ url_for('contact') }}" class="nav-link {{ 'active' if active_page == 'contact' else '' }}">Contact</a>
+      <a href="{{ url_for('dashboard') }}" class="nav-link {{ 'active' if active_page == 'dashboard' else '' }}">ATS Dashboard</a>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 8px 0;">
+      {% if current_user %}
+        <form action="{{ url_for('logout') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="btn-outline-white" style="width: 100%; text-align: center;">Logout</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-outline-white" style="text-align: center;">Log In</a>
+        <a href="{{ url_for('register') }}" class="btn-green-pill" style="justify-content: center;">Get Started Free</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       FLASH MESSAGES
+       ========================================================================== -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div style="max-width: 1280px; margin: 16px auto 0 auto; padding: 0 24px;">
+    {% for category, message in messages %}
+      <div style="padding: 14px 20px; border-radius: 12px; background: {% if category == 'success' %}#dcfce7; color: #166534; border: 1px solid #86efac;{% elif category == 'danger' %}#fee2e2; color: #991b1b; border: 1px solid #fca5a5;{% else %}#e0f2fe; color: #075985; border: 1px solid #7dd3fc;{% endif %}; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i> {{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- ==========================================================================
+       MAIN CONTENT BLOCK
+       ========================================================================== -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="{{ url_for('index') }}" class="brand-logo">
+            <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+              <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+              <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+            </svg>
+            Recruitify<span>.</span>
+          </a>
+          <p>The next-generation AI hiring platform designed to screen candidates 10x faster, automate interview scheduling, and deliver exceptional candidate experiences.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('features') }}">Features</a></li>
+            <li><a href="{{ url_for('pricing') }}">Pricing Plans</a></li>
+            <li><a href="{{ url_for('about') }}">About Us</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact Sales</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('dashboard') }}">Recruiter ATS Dashboard</a></li>
+            <li><a href="{{ url_for('features') }}#ai-screening">AI Candidate Matching</a></li>
+            <li><a href="{{ url_for('features') }}#video-assessments">Video Interviews</a></li>
+            <li><a href="{{ url_for('pricing') }}#faq">Security & GDPR</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Account</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('login') }}">Sign In</a></li>
+            <li><a href="{{ url_for('register') }}">Start 14-Day Free Trial</a></li>
+            <li><a href="{{ url_for('contact') }}">Request Live Demo</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div>© {{ current_year }} Recruitify Inc. All rights reserved. Built with Python Flask & Modern Web Tech.</div>
+        <div style="display: flex; gap: 20px;">
+          <a href="#" style="color: var(--text-light-teal);"><i class="fa-brands fa-twitter"></i></a>
+          <a href="#" style="color: var(--text-light-teal);"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="#" style="color: var(--text-light-teal);"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Loop & Asynchronous JavaScript Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+      padding: 2rem;
+      max-width: 750px;
+      margin: 0 auto;
+    }
+    h1 { color: #0f172a; margin-bottom: 0.5rem; }
+    p.subtitle { color: #64748b; margin-top: 0; }
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      overflow-x: auto;
+    }
+    button {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #0369a1; }
+    #log-box {
+      background: #1e293b;
+      color: #38bdf8;
+      font-family: monospace;
+      padding: 1rem;
+      border-radius: 6px;
+      min-height: 180px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .log-line {
+      margin-bottom: 0.4rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+    .tag-sync { background: #ef4444; color: white; }
+    .tag-micro { background: #8b5cf6; color: white; }
+    .tag-macro { background: #f59e0b; color: white; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .explanation-step {
+      border-left: 3px solid #0284c7;
+      padding-left: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>JavaScript Event Loop In Action</h1>
+  <p class="subtitle">Watch the exact execution order between Synchronous code, Promises (Microtasks), and Timers (Macrotasks).</p>
+
+  <!-- Code Snippet Card -->
+  <div class="card">
+    <h3>The Code We Are Running:</h3>
+    <pre><code>console.log("1. Synchronous START");
+
+setTimeout(() => {
+  console.log("4. Timer (setTimeout 0ms)");
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log("3. Promise .then()");
+});
+
+console.log("2. Synchronous END");</code></pre>
+
+    <button id="run-btn">▶ Run This Code</button>
+  </div>
+
+  <!-- Live Output Card -->
+  <div class="card">
+    <h3>Live Execution Output:</h3>
+    <div id="log-box"><em>Click "Run This Code" to watch the Event Loop in real time...</em></div>
+  </div>
+
+  <!-- Visual Explanation -->
+  <div class="card">
+    <h3>Why did it print in this order?</h3>
+    <div class="explanation-step">
+      <strong>Step 1: Call Stack (Synchronous)</strong>
+      <p>Lines 1 and 4 run immediately on the Call Stack. Nothing can interrupt them.</p>
+    </div>
+    <div class="explanation-step">
+      <strong>Step 2: Microtask Queue (Promise)</strong>
+      <p>Promises are placed in the high-priority <em>Microtask Queue</em>. The Event Loop empties ALL Microtasks as soon as the Call Stack is empty.</p>
+    </div>
+    <div class="explanation-step">
+      <strong>Step 3: Macrotask / Task Queue (Timer)</strong>
+      <p>Even with <code>0ms</code> delay, <code>setTimeout</code> goes to the <em>Macrotask Queue</em>. It must wait until all synchronous code AND all Microtasks have finished.</p>
+    </div>
+  </div>
+
+  <script>
+    const logBox = document.getElementById('log-box');
+    const runBtn = document.getElementById('run-btn');
+
+    function appendLog(tagType, tagLabel, text) {
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.innerHTML = `<span class="tag tag-${tagType}">${tagLabel}</span> ${text}`;
+      logBox.appendChild(line);
+      console.log(`[${tagLabel}] ${text}`);
+    }
+
+    runBtn.addEventListener('click', () => {
+      logBox.innerHTML = ''; // Clear previous output
+
+      // 1. Synchronous Call Stack
+      appendLog('sync', 'SYNC 1', '1. Synchronous START (Call Stack)');
+
+      // 2. Macrotask (Timer)
+      setTimeout(() => {
+        appendLog('macro', 'MACROTASK', '4. Timer (setTimeout 0ms - Macrotask Queue)');
+      }, 0);
+
+      // 3. Microtask (Promise)
+      Promise.resolve().then(() => {
+        appendLog('micro', 'MICROTASK', '3. Promise .then() (Microtask Queue)');
+      });
+
+      // 4. Synchronous Call Stack
+      appendLog('sync', 'SYNC 2', '2. Synchronous END (Call Stack)');
+    });
+  </script>
+
+</body>
+</html>

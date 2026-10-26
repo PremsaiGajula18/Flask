@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Student Management Using MySql
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Student Management System Using MySql</h1>
+
+
+        <!-- Student Form -->
+
+        <form id="studentForm">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Enter Name"
+            >
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter Email"
+            >
+
+            <input
+                type="number"
+                id="age"
+                placeholder="Enter Age"
+            >
+
+            <button type="submit">
+                Add Student
+            </button>
+
+        </form>
+
+
+        <!-- Message -->
+
+        <p id="message"></p>
+
+
+        <!-- Student List -->
+
+        <h2>Students</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>{{ student[0] }}</td>
+
+                    <td>{{ student[1] }}</td>
+
+                    <td>{{ student[2] }}</td>
+
+                    <td>{{ student[3] }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- JavaScript -->
+
+    <script
+        src="{{ url_for('static', filename='script.js') }}">
+    </script>
+
+</body>
+
+</html>

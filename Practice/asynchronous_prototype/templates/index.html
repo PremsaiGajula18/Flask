@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tea Shop Simulator: Sync vs Async</title>
+  <!-- Google Font: Outfit for a modern, friendly aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header with Live Animation Heartbeat -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-icon rotating-tea" id="tea-spinner">🍵</span>
+        <div>
+          <h1>Tea Shop Simulator</h1>
+          <p class="subtitle">Learn <strong>Synchronous (Blocking)</strong> vs <strong>Asynchronous (Non-Blocking)</strong> Execution</p>
+        </div>
+      </div>
+      
+      <!-- Thread Health Monitor -->
+      <div class="thread-monitor" id="thread-monitor" title="If this animation freezes, the JavaScript main thread is blocked!">
+        <span class="pulse-dot"></span>
+        <span class="monitor-text">UI Thread: <strong id="thread-status">Active</strong></span>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="main-layout">
+      <!-- Left Column: Controls & Typing Test -->
+      <section class="panel control-panel">
+        <div class="panel-header">
+          <h2>1. Order Counter</h2>
+          <span class="badge badge-accent">Cashier Desk</span>
+        </div>
+
+        <form id="order-form" onsubmit="return false;" class="form-container">
+          <!-- Customer Name -->
+          <div class="form-group">
+            <label for="customer-name">Customer Name</label>
+            <input 
+              type="text" 
+              id="customer-name" 
+              placeholder="e.g. Alice, Bob, Charlie..." 
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Duration Selector -->
+          <div class="form-group">
+            <label>Brewing Duration</label>
+            <div class="duration-selector">
+              <label class="radio-card">
+                <input type="radio" name="duration" value="2" checked />
+                <div class="radio-content">
+                  <span class="radio-title">⚡ Quick Brew</span>
+                  <span class="radio-sub">2 Seconds</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="duration" value="5" />
+                <div class="radio-content">
+                  <span class="radio-title">🍵 Slow Brew</span>
+                  <span class="radio-sub">5 Seconds</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="duration" value="20" />
+                <div class="radio-content">
+                  <span class="radio-title">⏳ Deep Steep</span>
+                  <span class="radio-sub">20 Seconds</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="duration" value="30" />
+                <div class="radio-content">
+                  <span class="radio-title">🏺 Grand Reserve</span>
+                  <span class="radio-sub">30 Seconds</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Core Action Buttons -->
+          <div class="action-buttons">
+            <button type="button" id="btn-sync" class="btn btn-sync">
+              <span class="btn-icon">🔴</span>
+              <div class="btn-text">
+                <strong>Synchronous Order</strong>
+                <small>Blocks browser UI thread</small>
+              </div>
+            </button>
+
+            <button type="button" id="btn-async" class="btn btn-async">
+              <span class="btn-icon">🟢</span>
+              <div class="btn-text">
+                <strong>Asynchronous Order</strong>
+                <small>Non-blocking via fetch() & async</small>
+              </div>
+            </button>
+          </div>
+        </form>
+
+        <hr class="divider" />
+
+        <!-- Responsiveness Interactive Test -->
+        <div class="typing-test-box">
+          <div class="typing-header">
+            <h3>⚡ Responsiveness Test</h3>
+            <span class="char-count" id="typing-counter">0 chars typed</span>
+          </div>
+          <p class="test-desc">
+            Type here <em>while</em> an order is brewing. Notice what happens in <strong>Sync</strong> vs <strong>Async</strong>!
+          </p>
+          <input 
+            type="text" 
+            id="typing-test" 
+            placeholder="Try typing while order is running..." 
+            autocomplete="off"
+          />
+          <div class="live-echo" id="live-echo">Echo: <em>(nothing typed yet)</em></div>
+        </div>
+
+        <!-- Concept Explainer Card -->
+        <div class="concept-card">
+          <h4>💡 What are you observing?</h4>
+          <ul>
+            <li><strong>🔴 Synchronous:</strong> Runs a tight loop on JavaScript's single call stack. The browser freezes entirely — typing halts, button clicks ignore you, and spinners freeze!</li>
+            <li><strong>🟢 Asynchronous:</strong> Uses <code>fetch()</code> & the Event Loop. You can place another order immediately — queue a 20s or 30s order and then a 2s order, and watch the 2s order finish first!</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Right Column: Order Buckets & Activity Log -->
+      <section class="panel output-panel">
+        <div class="output-topbar">
+          <h2>2. Kitchen Order Buckets</h2>
+          <button type="button" id="btn-clear" class="btn-secondary" title="Reset all orders">
+            🗑️ Clear All
+          </button>
+        </div>
+
+        <!-- Two Buckets: Preparing vs Ready -->
+        <div class="buckets-grid">
+          <!-- Preparing Bucket -->
+          <div class="bucket-card bucket-preparing">
+            <div class="bucket-header">
+              <div class="bucket-title">
+                <span class="bucket-icon">⏳</span>
+                <h3>Preparing</h3>
+              </div>
+              <span class="badge badge-warning" id="count-preparing">0</span>
+            </div>
+            <div class="bucket-list" id="list-preparing">
+              <div class="empty-state">No tea currently brewing</div>
+            </div>
+          </div>
+
+          <!-- Ready Bucket -->
+          <div class="bucket-card bucket-ready">
+            <div class="bucket-header">
+              <div class="bucket-title">
+                <span class="bucket-icon">✅</span>
+                <h3>Ready for Pickup</h3>
+              </div>
+              <span class="badge badge-success" id="count-ready">0</span>
+            </div>
+            <div class="bucket-list" id="list-ready">
+              <div class="empty-state">No orders finished yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="log-section">
+          <div class="log-header">
+            <h3>📋 Real-Time Activity Log</h3>
+            <button type="button" id="btn-clear-log" class="text-btn">Clear Log</button>
+          </div>
+          <div class="log-container" id="activity-log">
+            <div class="log-entry log-system">
+              <span class="log-time">[System]</span>
+              <span class="log-msg">Tea Shop Simulator initialized. Place an order to begin testing!</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

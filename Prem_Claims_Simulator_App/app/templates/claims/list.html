@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Claims Register · CarePulse{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Claims Management</h1>
+    <p class="text-secondary mb-0">Search, filter, and track health insurance claims across all adjudication stages.</p>
+  </div>
+  {% if current_user.role in ['policyholder','hospital'] %}
+  <a class="btn btn-primary shadow-sm" href="{{ url_for('claims.new_claim') }}">
+    <i class="bi bi-plus-lg"></i> Initiate New Claim
+  </a>
+  {% endif %}
+</div>
+
+<!-- Modern Filter Form Card -->
+<form method="get" class="card shadow-sm mb-4">
+  <div class="card-header bg-white py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <span class="fw-semibold text-dark"><i class="bi bi-funnel text-primary me-2"></i>Filter & Search Criteria</span>
+      <a class="btn btn-sm btn-link text-decoration-none p-0 text-secondary" href="{{ url_for('claims.list_claims') }}">
+        <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+      </a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label" for="q">Claim ID or Member Name</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-secondary"></i></span>
+          <input class="form-control border-start-0" id="q" name="q" value="{{ q }}" placeholder="e.g. 1001 or Priya">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="status">Workflow Status</label>
+        <select class="form-select" id="status" name="status">
+          <option value="">All Statuses</option>
+          {% for s in ['draft','submitted','hospital_check','policy_check','in_review','more_info','approved','rejected','paid'] %}
+          <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s|replace('_',' ')|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="type">Claim Type</label>
+        <select class="form-select" id="type" name="type">
+          <option value="">All Types</option>
+          <option value="cashless" {% if claim_type=='cashless' %}selected{% endif %}>Cashless</option>
+          <option value="reimbursement" {% if claim_type=='reimbursement' %}selected{% endif %}>Reimbursement</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="hospital_id">Hospital Facility</label>
+        <select class="form-select" id="hospital_id" name="hospital_id">
+          <option value="">All Hospitals</option>
+          {% for h in hospitals %}
+          <option value="{{ h.id }}" {% if hospital_id|string==h.id|string %}selected{% endif %}>{{ h.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top">
+        <a class="btn btn-outline-secondary" href="{{ url_for('claims.list_claims') }}">Reset</a>
+        <button class="btn btn-primary px-4" type="submit">
+          <i class="bi bi-filter"></i> Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Claims Table Card -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+      <i class="bi bi-list-check text-primary"></i> Claims Register
+    </h2>
+    <span class="badge text-bg-light border text-secondary">{{ claims|length }} Claims Found</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Claim ID</th>
+          <th>Beneficiary Member</th>
+          <th>Hospital Provider</th>
+          <th>Type</th>
+          <th>Requested Amount</th>
+          <th>Admission Date</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in claims %}
+        <tr>
+          <td class="fw-bold text-primary">#{{ c.id }}</td>
+          <td>
+            <div class="fw-semibold">{{ c.member.display_name }}</div>
+            <small class="text-secondary">Policy #{{ c.policy_id }}</small>
+          </td>
+          <td>
+            <div>{{ c.hospital.name }}</div>
+            <small class="text-secondary">{{ c.hospital.city }} · {% if c.hospital.network_status %}<span class="text-success fw-medium">Network</span>{% else %}<span class="text-muted">Non-network</span>{% endif %}</small>
+          </td>
+          <td>
+            <span class="badge text-bg-light border">{{ c.claim_type|title }}</span>
+          </td>
+          <td class="fw-bold text-dark">₹{{ '{:,.2f}'.format(c.requested_amount_inr|float) }}</td>
+          <td>{{ c.admission_date.strftime('%d %b %Y') }}</td>
+          <td>
+            <span class="badge status-{{ c.status }}">{{ c.status|replace('_',' ')|title }}</span>
+          </td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('claims.detail', claim_id=c.id) }}">
+              <i class="bi bi-arrow-up-right-square"></i> Details
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="p-5 text-center text-secondary">
+            <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+            No claims matched your search criteria.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

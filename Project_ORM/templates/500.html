@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error (500) - Trip Planner{% endblock %}
+
+{% block content %}
+<div class="empty-state" style="padding: 4.5rem 1.5rem;">
+  <div class="empty-icon" style="font-size: 4rem;">⚡</div>
+  <h1 class="empty-title" style="font-size: 2rem;">500 - Server Error</h1>
+  <p class="empty-desc">An unexpected server error occurred while processing your request. Please try again shortly.</p>
+  <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+    <a href="{{ url_for('home') }}" class="btn btn-primary">Return to Safety (Home)</a>
+  </div>
+</div>
+{% endblock %}

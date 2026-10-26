@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit Activity{% else %}Add Activity{% endif %} - {{ trip.destination }}{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="{{ url_for('trip_detail', trip_id=trip.id) }}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+      &larr; Back to {{ trip.destination }}
+    </a>
+  </div>
+
+  <h1 class="form-title">{% if is_edit %}Edit Activity{% else %}Add Activity to Itinerary{% endif %}</h1>
+  <p class="form-subtitle">
+    Trip Dates: <strong>{{ trip.start_date.strftime('%b %d, %Y') }}</strong> to <strong>{{ trip.end_date.strftime('%b %d, %Y') }}</strong>
+  </p>
+
+  {% if errors.general %}
+    <div class="flash-message flash-danger" style="margin-bottom: 1.5rem;">
+      <span>{{ errors.general }}</span>
+    </div>
+  {% endif %}
+
+  <form 
+    id="activityForm" 
+    action="{% if is_edit %}{{ url_for('edit_activity', activity_id=activity.id) }}{% else %}{{ url_for('create_activity', trip_id=trip.id) }}{% endif %}" 
+    method="POST" 
+    novalidate
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+      <label for="name" class="form-label">Activity Name</label>
+      <input 
+        type="text" 
+        id="name" 
+        name="name" 
+        class="form-control {% if errors.name %}is-invalid{% endif %}" 
+        value="{{ form_data.name or '' }}" 
+        placeholder="e.g. Visit Louvre Museum or Seafood Dinner"
+        required
+      >
+      {% if errors.name %}
+        <div class="invalid-feedback">{{ errors.name }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="activity_date" class="form-label">Date (Between Trip Start & End)</label>
+        <input 
+          type="date" 
+          id="activity_date" 
+          name="activity_date" 
+          min="{{ trip.start_date.strftime('%Y-%m-%d') }}" 
+          max="{{ trip.end_date.strftime('%Y-%m-%d') }}" 
+          class="form-control {% if errors.activity_date %}is-invalid{% endif %}" 
+          value="{{ form_data.activity_date or '' }}" 
+          required
+        >
+        {% if errors.activity_date %}
+          <div class="invalid-feedback">{{ errors.activity_date }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="activity_time" class="form-label">Time</label>
+        <input 
+          type="time" 
+          id="activity_time" 
+          name="activity_time" 
+          class="form-control {% if errors.activity_time %}is-invalid{% endif %}" 
+          value="{{ form_data.activity_time or '10:00' }}" 
+          required
+        >
+        {% if errors.activity_time %}
+          <div class="invalid-feedback">{{ errors.activity_time }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category" class="form-label">Category</label>
+        <select 
+          id="category" 
+          name="category" 
+          class="form-control {% if errors.category %}is-invalid{% endif %}"
+          required
+        >
+          {% for cat in categories %}
+            <option value="{{ cat }}" {% if form_data.category == cat %}selected{% endif %}>
+              {{ cat }}
+            </option>
+          {% endfor %}
+        </select>
+        {% if errors.category %}
+          <div class="invalid-feedback">{{ errors.category }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="cost" class="form-label">Estimated Cost ($ USD)</label>
+        <input 
+          type="number" 
+          step="0.01" 
+          min="0" 
+          id="cost" 
+          name="cost" 
+          class="form-control {% if errors.cost %}is-invalid{% endif %}" 
+          value="{{ form_data.cost or '0.00' }}" 
+          placeholder="0.00"
+          required
+        >
+        {% if errors.cost %}
+          <div class="invalid-feedback">{{ errors.cost }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="place" class="form-label">Place / Location Address</label>
+      <input 
+        type="text" 
+        id="place" 
+        name="place" 
+        class="form-control {% if errors.place %}is-invalid{% endif %}" 
+        value="{{ form_data.place or '' }}" 
+        placeholder="e.g. Rue de Rivoli, Paris or Downtown Market"
+        required
+      >
+      {% if errors.place %}
+        <div class="invalid-feedback">{{ errors.place }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('trip_detail', trip_id=trip.id) }}" class="btn btn-secondary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">
+        {% if is_edit %}Save Changes{% else %}Add to Itinerary{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

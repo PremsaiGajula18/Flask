@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Protected Route{% endblock %}
+
+{% block content %}
+<h2><span class="badge badge-user">Type 2</span> Member Dashboard</h2>
+<p>You reached this page because your request passed the <code>@login_required</code> wrapper!</p>
+
+<div style="background: #f8fafc; border-left: 4px solid #16a34a; padding: 16px; margin: 20px 0; border-radius: 4px;">
+    <p style="margin: 0;"><strong>Logged In As:</strong> {{ user }}</p>
+    <p style="margin: 6px 0 0 0;"><strong>Current Role:</strong> <code>{{ role }}</code></p>
+</div>
+
+<h3>Under the Hood:</h3>
+<pre style="background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 6px; overflow-x: auto;">
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", ...)
+</pre>
+
+<p>Try visiting the <a href="{{ url_for('admin_panel') }}">Admin Panel</a> to test role-level restrictions.</p>
+{% endblock %}

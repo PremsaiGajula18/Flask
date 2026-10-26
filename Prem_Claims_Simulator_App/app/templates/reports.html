@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Analytics & Reports · CarePulse{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Portfolio Analytics & Reports</h1>
+    <p class="text-secondary mb-0">Aggregate financial metrics, exposure totals, and workflow stage distributions.</p>
+  </div>
+</div>
+
+<!-- Financial Summary KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Total Requested</span>
+        <div class="metric-icon-box metric-icon-amber">
+          <i class="bi bi-wallet2"></i>
+        </div>
+      </div>
+      <div class="metric-value">₹{{ '{:,.2f}'.format(requested|float) }}</div>
+      <small class="text-secondary">Gross claims billed</small>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Adjudicated Eligible</span>
+        <div class="metric-icon-box metric-icon-blue">
+          <i class="bi bi-shield-check"></i>
+        </div>
+      </div>
+      <div class="metric-value">₹{{ '{:,.2f}'.format(eligible|float) }}</div>
+      <small class="text-secondary">Approved for coverage</small>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-card-top">
+        <span class="metric-label">Settled & Paid</span>
+        <div class="metric-icon-box metric-icon-emerald">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value text-success">₹{{ '{:,.2f}'.format(paid|float) }}</div>
+      <small class="text-secondary">Disbursed simulated payouts</small>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Distributions -->
+<div class="row g-4">
+  <!-- Status Distribution -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-pie-chart text-primary"></i> Volume by Workflow Status
+        </h2>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Workflow Stage</th>
+                <th class="text-end">Claim Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for label, count in by_status %}
+              <tr>
+                <td>
+                  <span class="badge status-{{ label }} me-2">{{ label|replace('_',' ')|title }}</span>
+                </td>
+                <td class="text-end fw-bold text-dark">{{ count }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="text-secondary text-center py-4">No data available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Type Distribution -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-bar-chart text-primary"></i> Volume by Settlement Modality
+        </h2>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Modality</th>
+                <th class="text-end">Claim Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for label, count in by_type %}
+              <tr>
+                <td class="fw-semibold text-dark">
+                  <i class="bi {% if label=='cashless' %}bi-hospital{% else %}bi-person-fill{% endif %} text-secondary me-2"></i>
+                  {{ label|title }}
+                </td>
+                <td class="text-end fw-bold text-dark">{{ count }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="text-secondary text-center py-4">No data available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

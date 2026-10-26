@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Health Claims Simulator{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard
+        </h3>
+        <p class="text-muted small mb-0">Logged in as <strong>{{ user.display_name }}</strong> &bull; Role: <span class="badge bg-primary text-uppercase">{{ role.replace('_', ' ') }}</span></p>
+    </div>
+    <div>
+        {% if role == 'policyholder' %}
+        <a href="{{ url_for('claims.create_claim') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> New Reimbursement Claim
+        </a>
+        {% elif role == 'hospital' %}
+        <a href="{{ url_for('claims.create_claim') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> New Cashless Request
+        </a>
+        {% elif role == 'claims_officer' %}
+        <a href="{{ url_for('officer.review_queue') }}" class="btn btn-warning text-dark fw-semibold">
+            <i class="bi bi-inbox-fill me-1"></i> Open Review Queue
+        </a>
+        {% elif role == 'admin' %}
+        <a href="{{ url_for('admin.settlements_list') }}" class="btn btn-success fw-semibold">
+            <i class="bi bi-cash-stack me-1"></i> Process Settlements
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ======================= POLICYHOLDER DASHBOARD ======================= -->
+{% if role == 'policyholder' %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">My Policies</div>
+            <div class="fs-3 fw-bold text-primary">{{ policies|length }}</div>
+            <small class="text-muted"><a href="{{ url_for('claims.my_policies') }}" class="text-decoration-none">View Details &rarr;</a></small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Draft Claims</div>
+            <div class="fs-3 fw-bold text-secondary">{{ draft_count }}</div>
+            <small class="text-muted">Unsubmitted requests</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">In Processing</div>
+            <div class="fs-3 fw-bold text-warning">{{ in_review_count }}</div>
+            <small class="text-muted">Submitted / In Review</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Settled / Paid</div>
+            <div class="fs-3 fw-bold text-success">{{ paid_count }}</div>
+            <small class="text-muted">Completed claims</small>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 bg-white mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">My Recent Claims</h5>
+        <a href="{{ url_for('claims.claim_list') }}" class="btn btn-sm btn-outline-primary">View All Claims</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Covered Member</th>
+                    <th>Hospital</th>
+                    <th>Treatment</th>
+                    <th>Dates</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in claims %}
+                <tr>
+                    <td><strong>#{{ c.id }}</strong></td>
+                    <td>{{ c.member.display_name }}</td>
+                    <td>{{ c.hospital.name }}</td>
+                    <td><span class="badge bg-light text-dark text-capitalize">{{ c.treatment_type }}</span></td>
+                    <td class="small">{{ c.admission_date }} to {{ c.discharge_date }}</td>
+                    <td><strong>{{ c.requested_amount_inr|format_inr }}</strong></td>
+                    <td><span class="badge badge-status badge-{{ c.status }}">{{ c.status }}</span></td>
+                    <td>
+                        <a href="{{ url_for('claims.claim_detail', claim_id=c.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No claims filed yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ======================= HOSPITAL DASHBOARD ======================= -->
+{% elif role == 'hospital' %}
+<div class="alert alert-info d-flex align-items-center mb-4 shadow-sm" role="alert">
+    <i class="bi bi-hospital fs-3 me-3"></i>
+    <div>
+        <strong>Connected Hospital:</strong> {{ hospital.name if hospital else 'None' }} &bull; {{ hospital.city if hospital else '' }}
+        {% if hospital and hospital.network_status %}
+        <span class="badge bg-success ms-2">Empanelled Network Hospital (Cashless Eligible)</span>
+        {% else %}
+        <span class="badge bg-secondary ms-2">Non-Network</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Draft Cashless</div>
+            <div class="fs-3 fw-bold text-secondary">{{ draft_count }}</div>
+            <small class="text-muted">Pending submission</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Awaiting Review</div>
+            <div class="fs-3 fw-bold text-info">{{ submitted_count }}</div>
+            <small class="text-muted">In Officer Queue</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Action Required</div>
+            <div class="fs-3 fw-bold text-warning">{{ more_info_count }}</div>
+            <small class="text-muted">More Info requested</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3">
+            <div class="text-muted small text-uppercase fw-semibold">Settled / Paid</div>
+            <div class="fs-3 fw-bold text-success">{{ paid_count }}</div>
+            <small class="text-muted">Payouts to Hospital</small>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 bg-white mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">Recent Cashless Submissions</h5>
+        <a href="{{ url_for('claims.claim_list') }}" class="btn btn-sm btn-outline-primary">View All Claims</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Policy #</th>
+                    <th>Patient (Member)</th>
+                    <th>Treatment</th>
+                    <th>Admission</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in claims %}
+                <tr>
+                    <td><strong>#{{ c.id }}</strong></td>
+                    <td>POL-{{ c.policy_id }}</td>
+                    <td>{{ c.member.display_name }}</td>
+                    <td><span class="badge bg-light text-dark text-capitalize">{{ c.treatment_type }}</span></td>
+                    <td class="small">{{ c.admission_date }}</td>
+                    <td><strong>{{ c.requested_amount_inr|format_inr }}</strong></td>
+                    <td><span class="badge badge-status badge-{{ c.status }}">{{ c.status }}</span></td>
+                    <td>
+                        <a href="{{ url_for('claims.claim_detail', claim_id=c.id) }}" class="btn btn-sm btn-outline-secondary">Details</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No cashless requests submitted yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ======================= CLAIMS OFFICER DASHBOARD ======================= -->
+{% elif role == 'claims_officer' %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-info">
+            <div class="text-muted small text-uppercase fw-semibold">Unassigned Claims</div>
+            <div class="fs-3 fw-bold text-info">{{ unassigned_count }}</div>
+            <small class="text-muted">Awaiting assignment</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-warning">
+            <div class="text-muted small text-uppercase fw-semibold">Under My Review</div>
+            <div class="fs-3 fw-bold text-warning">{{ my_review_count }}</div>
+            <small class="text-muted">Active review tasks</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-primary">
+            <div class="text-muted small text-uppercase fw-semibold">Awaiting Submitter Info</div>
+            <div class="fs-3 fw-bold text-primary">{{ more_info_count }}</div>
+            <small class="text-muted">Information requested</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-success">
+            <div class="text-muted small text-uppercase fw-semibold">My Decided Claims</div>
+            <div class="fs-3 fw-bold text-success">{{ my_total_decided }}</div>
+            <small class="text-muted">Approved / Rejected / Paid</small>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 bg-white mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">Active Claims Review Queue</h5>
+        <a href="{{ url_for('officer.review_queue') }}" class="btn btn-sm btn-primary">Open Full Queue</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Type</th>
+                    <th>Member</th>
+                    <th>Hospital</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Assigned Officer</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in recent_queue %}
+                <tr>
+                    <td><strong>#{{ c.id }}</strong></td>
+                    <td><span class="badge bg-secondary-subtle text-dark text-capitalize">{{ c.claim_type }}</span></td>
+                    <td>{{ c.member.display_name }}</td>
+                    <td>{{ c.hospital.name }}</td>
+                    <td><strong>{{ c.requested_amount_inr|format_inr }}</strong></td>
+                    <td><span class="badge badge-status badge-{{ c.status }}">{{ c.status }}</span></td>
+                    <td>{{ c.officer.display_name if c.officer else '<span class="text-muted fst-italic">Unassigned</span>'|safe }}</td>
+                    <td>
+                        <a href="{{ url_for('claims.claim_detail', claim_id=c.id) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No claims pending review.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ======================= ADMIN DASHBOARD ======================= -->
+{% elif role == 'admin' %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-success">
+            <div class="text-muted small text-uppercase fw-semibold">Pending Settlements</div>
+            <div class="fs-3 fw-bold text-success">{{ pending_settlements }}</div>
+            <small><a href="{{ url_for('admin.settlements_list') }}" class="text-decoration-none">Process Payouts &rarr;</a></small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-primary">
+            <div class="text-muted small text-uppercase fw-semibold">Total Claims in System</div>
+            <div class="fs-3 fw-bold text-primary">{{ total_claims }}</div>
+            <small><a href="{{ url_for('claims.claim_list') }}" class="text-decoration-none">Search All &rarr;</a></small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-dark">
+            <div class="text-muted small text-uppercase fw-semibold">Total Simulated Paid</div>
+            <div class="fs-3 fw-bold text-dark">{{ total_settled_amount|format_inr }}</div>
+            <small class="text-muted">Simulated settlements</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-0 bg-white p-3 border-start border-4 border-info">
+            <div class="text-muted small text-uppercase fw-semibold">Hospitals / Users</div>
+            <div class="fs-3 fw-bold text-info">{{ hospitals_count }} / {{ users_count }}</div>
+            <small><a href="{{ url_for('admin.reference_data') }}" class="text-decoration-none">Manage Reference &rarr;</a></small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 bg-white p-3 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-tools text-primary me-2"></i>Administration Tools</h5>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('admin.settlements_list') }}" class="btn btn-outline-success text-start py-2">
+                    <i class="bi bi-cash-stack me-2"></i> <strong>Financial Settlements:</strong> Record simulated payouts for approved claims
+                </a>
+                <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-primary text-start py-2">
+                    <i class="bi bi-bar-chart-line me-2"></i> <strong>Aggregate Reports:</strong> View financial breakdown & claim distribution
+                </a>
+                <a href="{{ url_for('admin.reference_data') }}" class="btn btn-outline-secondary text-start py-2">
+                    <i class="bi bi-database me-2"></i> <strong>Master Reference Data:</strong> Toggle network status, inspect plans & roles
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 bg-white p-3 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-shield-check text-success me-2"></i>System Integrity Status</h5>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Database State:</span>
+                    <span class="badge bg-success">Online & Audited</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Role Enforcement:</span>
+                    <span class="badge bg-success">Active (Server-Side)</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>CSRF Token Protection:</span>
+                    <span class="badge bg-success">Active</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Decimal Financial Engine:</span>
+                    <span class="badge bg-success">Active</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

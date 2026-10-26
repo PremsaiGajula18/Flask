@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Claims Review Queue — Health Claims Simulator{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-inbox-fill text-warning me-2"></i>Claims Officer Review Queue</h3>
+        <p class="text-muted small mb-0">Prioritize incoming claims, evaluate evidence, and assign work</p>
+    </div>
+    <div>
+        <a href="{{ url_for('claims.claim_list') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-search me-1"></i> Search All Claims
+        </a>
+    </div>
+</div>
+
+<!-- Queue Navigation Tabs -->
+<ul class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm">
+    <li class="nav-item">
+        <a class="nav-link {% if filter_mode == 'all' %}active{% endif %}" href="{{ url_for('officer.review_queue', view='all') }}">
+            All Pending Claims
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if filter_mode == 'mine' %}active{% endif %}" href="{{ url_for('officer.review_queue', view='mine') }}">
+            Assigned to Me
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if filter_mode == 'unassigned' %}active{% endif %}" href="{{ url_for('officer.review_queue', view='unassigned') }}">
+            Unassigned (New Submissions)
+        </a>
+    </li>
+</ul>
+
+<!-- Queue Table -->
+<div class="card shadow-sm border-0 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Policy & Member</th>
+                    <th>Treating Hospital</th>
+                    <th>Type</th>
+                    <th>Treatment</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Assigned Officer</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in claims %}
+                <tr>
+                    <td><strong class="text-primary">#{{ c.id }}</strong></td>
+                    <td>
+                        <div class="fw-semibold">{{ c.member.display_name }}</div>
+                        <small class="text-muted">POL-{{ c.policy_id }} &bull; Plan: {{ c.policy.plan.name }}</small>
+                    </td>
+                    <td>
+                        <div>{{ c.hospital.name }}</div>
+                        <small class="text-muted">{{ c.hospital.city }}</small>
+                    </td>
+                    <td>
+                        <span class="badge {% if c.claim_type == 'cashless' %}bg-info-subtle text-info-emphasis{% else %}bg-secondary-subtle text-dark{% endif %} text-capitalize">
+                            {{ c.claim_type }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-light text-dark text-capitalize">{{ c.treatment_type }}</span></td>
+                    <td><strong>{{ c.requested_amount_inr|format_inr }}</strong></td>
+                    <td><span class="badge badge-status badge-{{ c.status }}">{{ c.status }}</span></td>
+                    <td>
+                        {% if c.officer %}
+                            <span class="badge bg-light text-dark border">{{ c.officer.display_name }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('claims.claim_detail', claim_id=c.id) }}" class="btn btn-sm btn-primary">
+                            Review <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="bi bi-check-circle fs-2 text-success d-block mb-2"></i>
+                        <h6>Queue is clean! No claims match this filter.</h6>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

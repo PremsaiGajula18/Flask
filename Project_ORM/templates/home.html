@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Plan Your Next Adventure{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-content">
+    <h1 class="hero-title">Plan Your Next Adventure</h1>
+    <p class="hero-subtitle">
+      Design comprehensive itineraries, track day-by-day activities, and keep your travel budget in check with smart, effortless planning.
+    </p>
+    <div class="hero-actions">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_trip') }}" class="btn btn-primary btn-lg">Start Planning</a>
+        <a href="{{ url_for('my_trips') }}" class="btn btn-secondary btn-lg">View My Trips</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Start Planning</a>
+        <a href="{{ url_for('explore') }}" class="btn btn-secondary btn-lg">Explore Places</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section style="margin-bottom: 4rem;">
+  <div class="section-header">
+    <h2 class="section-title">Everything You Need for Seamless Travel</h2>
+    <p class="section-desc">From initial destination ideas to everyday budget control.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon-wrapper">🗺️</div>
+      <h3 class="feature-title">Organized Trip Hub</h3>
+      <p class="feature-text">
+        Keep all your travel destinations, scheduled dates, and duration timelines cleanly organized in one dedicated space.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrapper">📅</div>
+      <h3 class="feature-title">Daily Itineraries</h3>
+      <p class="feature-text">
+        Schedule activities by specific day and time. Categorize sightseeing, food, culture, and adventure effortlessly.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrapper">💰</div>
+      <h3 class="feature-title">Live Budget Tracking</h3>
+      <p class="feature-text">
+        Instant recalculation of activity costs against your set budget with proactive warnings when limits are approached or exceeded.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Destinations Section -->
+<section>
+  <div class="section-header">
+    <h2 class="section-title">Sample Destinations & Inspiration</h2>
+    <p class="section-desc">Discover curated popular spots around the world.</p>
+  </div>
+
+  <div class="cards-grid">
+    {% for place in featured_places %}
+      <div class="card">
+        {% if place.image_url %}
+          <img src="{{ place.image_url }}" alt="{{ place.name }}" class="card-img" loading="lazy">
+        {% else %}
+          <div class="card-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">🌍</div>
+        {% endif %}
+        <div class="card-body">
+          <span class="card-tag">{{ place.category }}</span>
+          <h3 class="card-title">{{ place.name }}</h3>
+          <div class="card-location">📍 {{ place.destination }}</div>
+          <p class="card-desc">{{ place.description }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="text-align: center; margin-top: 2.5rem;">
+    <a href="{{ url_for('explore') }}" class="btn btn-secondary">Explore All Suggestions &rarr;</a>
+  </div>
+</section>
+{% endblock %}

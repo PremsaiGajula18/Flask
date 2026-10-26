@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recruiter ATS Dashboard — Recruitify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="site-navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+          <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+          <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+        </svg>
+        Recruitify<span>.</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a></li>
+        <li><a href="features.html" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> Features</a></li>
+        <li><a href="pricing.html" class="nav-link"><i class="fa-solid fa-tags"></i> Pricing</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-users"></i> About Us</a></li>
+        <li><a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact</a></li>
+        <li><a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-chart-kanban"></i> ATS Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-nav-ghost">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-page-wrapper">
+    <div class="container">
+      
+      <div class="dashboard-header-bar">
+        <div>
+          <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--text-dark-heading);">
+            Recruiter Talent Pipeline
+          </h1>
+          <p style="color: var(--text-dark-body); font-size: 0.95rem;">
+            Welcome back! Here is your live active hiring summary.
+          </p>
+        </div>
+
+        <button class="btn-green-pill" onclick="showToast('New Job Posting Form Triggered', 'info')">
+          <i class="fa-solid fa-plus"></i> Post New Job
+        </button>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-row-4">
+        <div class="metric-card">
+          <div>
+            <div class="metric-number">14</div>
+            <div class="metric-label">Active Openings</div>
+          </div>
+          <div class="metric-icon"><i class="fa-solid fa-briefcase"></i></div>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-number">342</div>
+            <div class="metric-label">Applicants</div>
+          </div>
+          <div class="metric-icon" style="background: rgba(0, 230, 118, 0.15); color: #00a854;"><i class="fa-solid fa-users"></i></div>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-number">18</div>
+            <div class="metric-label">Interviews Scheduled</div>
+          </div>
+          <div class="metric-icon" style="background: rgba(59, 130, 246, 0.15); color: #2563eb;"><i class="fa-solid fa-calendar-days"></i></div>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-number">12 days</div>
+            <div class="metric-label">Avg. Time to Hire</div>
+          </div>
+          <div class="metric-icon" style="background: rgba(245, 158, 11, 0.15); color: #d97706;"><i class="fa-solid fa-stopwatch"></i></div>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Kanban Board -->
+      <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <h3 style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--text-dark-heading);">
+          Senior Full Stack Engineer (Req #402)
+        </h3>
+        <span style="font-size: 0.85rem; color: var(--text-dark-body);">
+          <i class="fa-solid fa-hand-pointer"></i> Drag candidate cards between columns
+        </span>
+      </div>
+
+      <div class="kanban-board-container">
+        
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <span><i class="fa-solid fa-inbox"></i> Sourced</span>
+            <span class="kanban-count-pill">3</span>
+          </div>
+
+          <div class="kanban-card" id="c1">
+            <div class="candidate-name">Alex Miller</div>
+            <div class="candidate-role">Staff React Engineer</div>
+            <div class="candidate-tags"><span class="tag-badge">96% Match</span></div>
+          </div>
+
+          <div class="kanban-card" id="c2">
+            <div class="candidate-name">Devon Zhao</div>
+            <div class="candidate-role">Senior Node / Python Dev</div>
+            <div class="candidate-tags"><span class="tag-badge">91% Match</span></div>
+          </div>
+
+          <div class="kanban-card" id="c3">
+            <div class="candidate-name">Maya Patel</div>
+            <div class="candidate-role">Full Stack Developer</div>
+            <div class="candidate-tags"><span class="tag-badge">88% Match</span></div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <span><i class="fa-solid fa-filter"></i> Screened</span>
+            <span class="kanban-count-pill">2</span>
+          </div>
+
+          <div class="kanban-card" id="c4">
+            <div class="candidate-name">Sarah Jenkins</div>
+            <div class="candidate-role">Frontend Specialist</div>
+            <div class="candidate-tags"><span class="tag-badge" style="background: #dcfce7; color: #166534;">Video Done</span></div>
+          </div>
+
+          <div class="kanban-card" id="c5">
+            <div class="candidate-name">Lucas Swierad</div>
+            <div class="candidate-role">Lead Architect</div>
+            <div class="candidate-tags"><span class="tag-badge">98% Match</span></div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <span><i class="fa-solid fa-user-group"></i> Interviewing</span>
+            <span class="kanban-count-pill">1</span>
+          </div>
+
+          <div class="kanban-card" id="c6">
+            <div class="candidate-name">Marcus Vance</div>
+            <div class="candidate-role">Principal Systems Eng</div>
+            <div class="candidate-tags"><span class="tag-badge" style="background: #dbeafe; color: #1e40af;">Final Round</span></div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <span><i class="fa-solid fa-award"></i> Offer Sent</span>
+            <span class="kanban-count-pill">1</span>
+          </div>
+
+          <div class="kanban-card" id="c7">
+            <div class="candidate-name">Elena Rostova</div>
+            <div class="candidate-role">Senior Tech Lead</div>
+            <div class="candidate-tags"><span class="tag-badge" style="background: #fef3c7; color: #92400e;">Offer Pending</span></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="static/js/main.js"></script>
+</body>
+</html>

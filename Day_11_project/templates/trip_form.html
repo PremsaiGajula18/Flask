@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit Trip: {{ trip.destination }}{% else %}Plan a New Trip{% endif %} - Trip Planner{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h1 class="form-title">{% if is_edit %}Edit Trip{% else %}Create New Trip{% endif %}</h1>
+  <p class="form-subtitle">
+    {% if is_edit %}
+      Update destination, trip dates, or overall budget for your adventure.
+    {% else %}
+      Set your target destination, duration, and planned financial budget.
+    {% endif %}
+  </p>
+
+  {% if errors.general %}
+    <div class="flash-message flash-danger" style="margin-bottom: 1.5rem;">
+      <span>{{ errors.general }}</span>
+    </div>
+  {% endif %}
+
+  <form 
+    id="tripForm" 
+    action="{% if is_edit %}{{ url_for('edit_trip', trip_id=trip.id) }}{% else %}{{ url_for('create_trip') }}{% endif %}" 
+    method="POST" 
+    novalidate
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {% if form_data.place_name and not is_edit %}
+      <div style="background: var(--primary-light); border: 1px solid #bae6fd; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+        <div style="font-weight: 700; color: var(--secondary); font-size: 0.95rem; margin-bottom: 0.25rem;">
+          ✨ Selected from Explore: <span style="color: var(--primary);">{{ form_data.place_name }}</span>
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.75rem;">
+          Destination, recommended dates, and default budget have been automatically filled in below.
+        </div>
+        <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--secondary); cursor: pointer;">
+          <input type="checkbox" name="add_activity" value="1" {% if form_data.add_activity != '0' %}checked{% endif %}>
+          <span>Add <strong>{{ form_data.place_name }}</strong> to your Day 1 itinerary activities</span>
+        </label>
+      </div>
+      <input type="hidden" name="place_name" value="{{ form_data.place_name }}">
+      <input type="hidden" name="place_category" value="{{ form_data.place_category }}">
+    {% elif form_data.destination and not is_edit %}
+      <div style="background: var(--primary-light); border: 1px solid #bae6fd; border-radius: var(--radius-md); padding: 0.9rem 1.25rem; margin-bottom: 1.5rem;">
+        <div style="font-weight: 700; color: var(--secondary); font-size: 0.92rem;">
+          📍 Location Selected: <span style="color: var(--primary);">{{ form_data.destination }}</span>
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+          Trip details have been automatically filled. You can adjust the dates or budget below before creating your trip.
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="destination" class="form-label">Destination</label>
+      <input 
+        type="text" 
+        id="destination" 
+        name="destination" 
+        class="form-control {% if errors.destination %}is-invalid{% endif %}" 
+        value="{{ form_data.destination or '' }}" 
+        placeholder="e.g. Kyoto, Japan or Rome, Italy"
+        required
+      >
+      {% if errors.destination %}
+        <div class="invalid-feedback">{{ errors.destination }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="start_date" class="form-label">Start Date</label>
+        <input 
+          type="date" 
+          id="start_date" 
+          name="start_date" 
+          class="form-control {% if errors.start_date %}is-invalid{% endif %}" 
+          value="{{ form_data.start_date or '' }}" 
+          required
+        >
+        {% if errors.start_date %}
+          <div class="invalid-feedback">{{ errors.start_date }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="end_date" class="form-label">End Date</label>
+        <input 
+          type="date" 
+          id="end_date" 
+          name="end_date" 
+          class="form-control {% if errors.end_date %}is-invalid{% endif %}" 
+          value="{{ form_data.end_date or '' }}" 
+          required
+        >
+        {% if errors.end_date %}
+          <div class="invalid-feedback">{{ errors.end_date }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="budget" class="form-label">Total Budget ($ USD)</label>
+      <input 
+        type="number" 
+        step="0.01" 
+        min="0" 
+        id="budget" 
+        name="budget" 
+        class="form-control {% if errors.budget %}is-invalid{% endif %}" 
+        value="{{ form_data.budget or '' }}" 
+        placeholder="0.00"
+        required
+      >
+      {% if errors.budget %}
+        <div class="invalid-feedback">{{ errors.budget }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% if is_edit %}{{ url_for('trip_detail', trip_id=trip.id) }}{% else %}{{ url_for('my_trips') }}{% endif %}" class="btn btn-secondary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">
+        {% if is_edit %}Save Changes{% else %}Create Trip{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

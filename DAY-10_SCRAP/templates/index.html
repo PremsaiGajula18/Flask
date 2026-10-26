@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Recruitify — All-in-One AI Recruiting & ATS Platform{% endblock %}
+
+{% block content %}
+<!-- ==========================================================================
+     HERO SECTION
+     ========================================================================== -->
+<section class="hero-wrapper">
+  <div class="hero-container">
+    <div class="hero-grid">
+      <div class="hero-text-side">
+        <div class="hero-badge">
+          <i class="fa-solid fa-sparkles"></i> AI-POWERED RECRUITING SUITE 2.0
+        </div>
+        <h1 class="hero-title">
+          Hire Top 1% Talent <span>10x Faster</span> with AI Automation
+        </h1>
+        <p class="hero-subtitle">
+          Transform your recruitment lifecycle. Recruitify automates candidate sourcing, resume parsing, interview scheduling, and pipeline analytics in one seamless platform.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="{{ url_for('register') }}" class="btn-green-pill" style="padding: 14px 32px; font-size: 1rem;">
+            Start 14-Day Free Trial <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <a href="{{ url_for('features') }}" class="btn-outline-white" style="padding: 13px 26px;">
+            <i class="fa-solid fa-play-circle"></i> Explore Features
+          </a>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="stat-item">
+            <h3>85%</h3>
+            <p>Faster Time to Hire</p>
+          </div>
+          <div class="stat-item">
+            <h3>4.9/5</h3>
+            <p>Recruiter Satisfaction</p>
+          </div>
+          <div class="stat-item">
+            <h3>2.4M+</h3>
+            <p>Candidates Screened</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Video Card -->
+      <div class="hero-media-side">
+        <div class="showcase-video-card">
+          <video autoplay loop muted playsinline poster="">
+            <source src="{{ url_for('static', filename='recruitify_landing_motion_1620_l.swierad.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+          <div class="video-overlay-play">
+            <a href="#" id="playVideoBtn" class="play-circle-btn">
+              <i class="fa-solid fa-play"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Organic Multi-Layered Wave Divider -->
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none">
+    <path d="M0,32L48,42.7C96,53,192,75,288,80C384,85,480,75,576,64C672,53,768,43,864,48C960,53,1056,75,1152,80C1248,85,1344,75,1392,69.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" fill="#043442"></path>
+  </svg>
+</div>
+
+<!-- ==========================================================================
+     CORE PLATFORM HIGHLIGHTS
+     ========================================================================== -->
+<section class="section-padding">
+  <div class="container">
+    <div class="section-header-center">
+      <span class="section-badge">WHY LEADING HR TEAMS CHOOSE RECRUITIFY</span>
+      <h2 class="section-title">Built for Modern Talent Acquisition Teams</h2>
+      <p class="section-desc">Replace clunky legacy spreadsheets with smart automated workflows that save 20+ hours per week per recruiter.</p>
+    </div>
+
+    <div class="feature-grid-3">
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3>AI Candidate Screening</h3>
+        <p>Instant contextual parsing of resumes against job requirements. Score skills, experience alignment, and cultural fit automatically.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="fa-solid fa-square-kanban"></i>
+        </div>
+        <h3>Interactive Visual Pipeline</h3>
+        <p>Drag-and-drop candidates across custom hiring stages (Sourced, Screened, Interview, Offer) with real-time automated team notifications.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <h3>Smart Calendar Scheduling</h3>
+        <p>Eliminate back-and-forth emails. Self-serve scheduling links integrate directly with Google Calendar, Outlook, and Zoom.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     VIDEO SHOWCASE MODAL
+     ========================================================================== -->
+<div id="videoModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 34, 44, 0.9); z-index: 10000; align-items: center; justify-content: center; padding: 24px;">
+  <div style="position: relative; max-width: 900px; width: 100%; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+    <button id="closeVideoModal" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <video id="modalVideoPlayer" controls style="width: 100%; display: block;">
+      <source src="{{ url_for('static', filename='recruitify_landing_motion_1620_l.swierad.mp4') }}" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     CALL TO ACTION SECTION
+     ========================================================================== -->
+<section style="background: var(--brand-petrol); color: var(--text-white); padding: 80px 0; text-align: center; position: relative;">
+  <div class="container">
+    <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 16px;">
+      Ready to Revolutionize Your Hiring Process?
+    </h2>
+    <p style="color: var(--text-light-teal); font-size: 1.1rem; max-width: 600px; margin: 0 auto 32px auto;">
+      Join over 3,500+ forward-thinking companies using Recruitify to build world-class teams.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 16px;">
+      <a href="{{ url_for('register') }}" class="btn-green-pill" style="padding: 14px 32px; font-size: 1rem;">
+        Start 14-Day Free Trial
+      </a>
+      <a href="{{ url_for('contact') }}" class="btn-outline-white" style="padding: 13px 26px;">
+        Book a Live Demo
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

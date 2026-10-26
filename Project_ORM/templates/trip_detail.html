@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}{{ trip.destination }} - Itinerary & Dashboard{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="trip-dashboard-header">
+  <div class="dashboard-title-row">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem;">
+        <h1 style="font-size: 2.3rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.02em;">
+          {{ trip.destination }}
+        </h1>
+        <span class="trip-duration-badge" style="font-size: 0.9rem;">{{ trip.duration_days }} Days Total</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📅 {{ trip.start_date.strftime('%B %d, %Y') }} &ndash; {{ trip.end_date.strftime('%B %d, %Y') }}</span>
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{{ url_for('create_activity', trip_id=trip.id) }}" class="btn btn-primary">
+        <span>➕</span> Add Activity
+      </a>
+      <a href="{{ url_for('edit_trip', trip_id=trip.id) }}" class="btn btn-secondary">
+        <span>✏️</span> Edit Trip
+      </a>
+      <form action="{{ url_for('delete_trip', trip_id=trip.id) }}" method="POST" onsubmit="return confirm('Delete this trip and all its itinerary items?');" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Financial Statistics Grid -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-label">Total Budget</div>
+      <div class="stat-value">${{ "%.2f"|format(trip.budget) }}</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-label">Total Estimated Cost</div>
+      <div class="stat-value">${{ "%.2f"|format(trip.total_cost) }}</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-label">Financial Status</div>
+      <div class="stat-value" style="font-size: 1.3rem;">
+        <span class="status-badge {{ trip.budget_status_class }}">
+          {% if trip.budget_difference > 0 %}
+            ${{ "%.2f"|format(trip.budget_difference) }} Remaining
+          {% elif trip.budget_difference == 0 %}
+            Budget Fully Used
+          {% else %}
+            ${{ "%.2f"|format(trip.budget_difference|abs) }} Exceeded!
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-label">Budget Utilization</div>
+      <div class="stat-value">{{ trip.utilization_percentage }}%</div>
+    </div>
+  </div>
+
+  <!-- Visual Budget Progress Indicator -->
+  <div class="budget-progress-container">
+    <div class="progress-header">
+      <span>Budget Used: {{ trip.utilization_percentage }}%</span>
+      <span>
+        {% if trip.budget_difference >= 0 %}
+          ${{ "%.2f"|format(trip.budget_difference) }} left to spend
+        {% else %}
+          <strong style="color: var(--danger);">⚠️ Over budget by ${{ "%.2f"|format(trip.budget_difference|abs) }}</strong>
+        {% endif %}
+      </span>
+    </div>
+    <div class="progress-bar-bg">
+      {% set capped_pct = trip.utilization_percentage if trip.utilization_percentage <= 100 else 100 %}
+      <div 
+        class="progress-bar-fill {% if trip.budget_difference < 0 %}exceeded{% elif trip.utilization_percentage >= 85 %}warning{% endif %}" 
+        style="width: {{ capped_pct }}%;"
+      ></div>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Itinerary Section -->
+<div class="itinerary-section">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h2 style="font-size: 1.7rem; font-weight: 800; color: var(--secondary);">Daily Itinerary</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Chronological daily timeline of scheduled activities and visits.</p>
+    </div>
+    <a href="{{ url_for('create_activity', trip_id=trip.id) }}" class="btn btn-secondary btn-sm">
+      ➕ Add Activity
+    </a>
+  </div>
+
+  {% if itinerary %}
+    {% for act_date, day_activities in itinerary %}
+      <div class="itinerary-day-group">
+        <div class="day-header">
+          <span>🗓️ {{ act_date.strftime('%A, %B %d, %Y') }}</span>
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 999px;">
+            {{ day_activities|length }} Activit{% if day_activities|length == 1 %}y{% else %}ies{% endif %}
+          </span>
+        </div>
+
+        {% for act in day_activities %}
+          <div class="activity-item">
+            <div class="activity-info">
+              <span class="activity-time-badge">
+                🕒 {{ act.activity_time.strftime('%I:%M %p') }}
+              </span>
+              <div>
+                <h4 class="activity-title">{{ act.name }}</h4>
+                <div class="activity-meta">
+                  <span>📍 {{ act.place }}</span>
+                  <span class="card-tag" style="margin-bottom: 0;">{{ act.category }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="activity-cost">
+                ${{ "%.2f"|format(act.cost) }}
+              </div>
+              <div style="display: flex; gap: 0.4rem;">
+                <a href="{{ url_for('edit_activity', activity_id=act.id) }}" class="btn btn-secondary btn-sm" title="Edit Activity">
+                  ✏️
+                </a>
+                <form action="{{ url_for('delete_activity', activity_id=act.id) }}" method="POST" onsubmit="return confirm('Remove this activity from itinerary?');" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-danger btn-sm" title="Delete Activity">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🗓️</div>
+      <h3 class="empty-title">No activities planned yet</h3>
+      <p class="empty-desc">Start building your day-by-day plan with sightseeing tours, food stops, or adventures.</p>
+      <a href="{{ url_for('create_activity', trip_id=trip.id) }}" class="btn btn-primary">
+        Add Your First Activity
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

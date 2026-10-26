@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing Plans — Recruitify ATS Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="site-navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+          <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+          <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+        </svg>
+        Recruitify<span>.</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a></li>
+        <li><a href="features.html" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> Features</a></li>
+        <li><a href="pricing.html" class="nav-link active"><i class="fa-solid fa-tags"></i> Pricing</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-users"></i> About Us</a></li>
+        <li><a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact</a></li>
+        <li><a href="dashboard.html" class="nav-link"><i class="fa-solid fa-chart-kanban"></i> ATS Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-nav-ghost">Log In</a>
+        <a href="register.html" class="btn-green-pill">Get Started <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero-header">
+      <div class="container">
+        <span class="section-badge">TRANSPARENT PRICING</span>
+        <h1 class="page-hero-title">Simple Plans for Growing & Enterprise Teams</h1>
+        <p class="page-hero-subtitle">No hidden fees, no seat lock-ins. Pick the plan that matches your current hiring volume.</p>
+      </div>
+    </section>
+
+    <section class="section-padding">
+      <div class="container">
+
+        <div class="pricing-toggle-wrap">
+          <span class="pricing-toggle-label">Monthly Billing</span>
+          <label class="switch-pill">
+            <input type="checkbox" id="billingSwitch">
+            <span class="slider-pill"></span>
+          </label>
+          <span class="pricing-toggle-label">Annual Billing <span class="discount-badge">SAVE 20%</span></span>
+        </div>
+
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-plan-name">Starter</div>
+            <div class="pricing-plan-desc">Ideal for small startups hiring 1-5 roles per month.</div>
+            <div class="pricing-amount" data-monthly="49" data-annual="39">$49 <span>/month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> 5 Active Job Postings</li>
+              <li><i class="fa-solid fa-check"></i> 500 AI Resume Screenings</li>
+              <li><i class="fa-solid fa-check"></i> Basic Kanban Pipeline</li>
+            </ul>
+            <a href="register.html" class="btn-outline-white" style="border-color: var(--brand-petrol); color: var(--brand-petrol); text-align: center; justify-content: center;">Start Free Trial</a>
+          </div>
+
+          <div class="pricing-card popular">
+            <span class="popular-ribbon">MOST POPULAR</span>
+            <div class="pricing-plan-name">Professional</div>
+            <div class="pricing-plan-desc">For fast-scaling companies needing advanced AI screening.</div>
+            <div class="pricing-amount" data-monthly="149" data-annual="119">$149 <span>/month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> Unlimited Active Job Postings</li>
+              <li><i class="fa-solid fa-check"></i> 5,000 AI Resume Screenings</li>
+              <li><i class="fa-solid fa-check"></i> Video Assessment Suite</li>
+            </ul>
+            <a href="register.html" class="btn-green-pill" style="justify-content: center;">Start 14-Day Free Trial</a>
+          </div>
+
+          <div class="pricing-card">
+            <div class="pricing-plan-name">Enterprise</div>
+            <div class="pricing-plan-desc">Custom security, unlimited seats, and dedicated manager.</div>
+            <div class="pricing-amount" data-monthly="399" data-annual="319">$399 <span>/month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> Unlimited Sourcing & Screening</li>
+              <li><i class="fa-solid fa-check"></i> SAML SSO & Okta Integration</li>
+              <li><i class="fa-solid fa-check"></i> Dedicated SLA Account Manager</li>
+            </ul>
+            <a href="contact.html" class="btn-outline-white" style="border-color: var(--brand-petrol); color: var(--brand-petrol); text-align: center; justify-content: center;">Contact Sales</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="static/js/main.js"></script>
+</body>
+</html>

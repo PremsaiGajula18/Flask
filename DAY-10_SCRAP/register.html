@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Start Free Trial — Recruitify ATS Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+  <header class="site-navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <svg class="brand-logo-icon" viewBox="0 0 32 38" fill="none">
+          <path d="M4 4H18C23 4 27 7.5 27 12.5C27 17.5 23 21 18 21H11V34H4V4Z" fill="#00e676"/>
+          <path d="M16 21L26 34H18L10 23.5H13.5L16 21Z" fill="#00d664"/>
+        </svg>
+        Recruitify<span>.</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a></li>
+        <li><a href="features.html" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> Features</a></li>
+        <li><a href="pricing.html" class="nav-link"><i class="fa-solid fa-tags"></i> Pricing</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-users"></i> About Us</a></li>
+        <li><a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact</a></li>
+        <li><a href="dashboard.html" class="nav-link"><i class="fa-solid fa-chart-kanban"></i> ATS Dashboard</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="auth-page-wrapper">
+    <div class="auth-card-container" style="max-width: 600px; grid-template-columns: 1fr;">
+      <div class="auth-form-side" style="padding: 40px;">
+        <h2>Start Your 14-Day Free Trial</h2>
+        <p>No credit card required. Instant access to all features.</p>
+
+        <form action="dashboard.html" method="GET">
+          <div class="form-group">
+            <label class="form-label" style="color: var(--text-light-teal);">Full Name</label>
+            <input type="text" class="dark-input" placeholder="Alex Miller" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color: var(--text-light-teal);">Work Email</label>
+            <input type="email" class="dark-input" placeholder="alex@company.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color: var(--text-light-teal);">Password</label>
+            <input type="password" class="dark-input" placeholder="At least 8 characters" required>
+          </div>
+          <button type="submit" class="btn-green-pill" style="width: 100%; justify-content: center; padding: 14px; margin-top: 10px;">
+            Create Free Account <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 0.9rem; color: var(--text-light-teal);">
+          Already have an account? <a href="login.html" style="color: var(--brand-green); font-weight: 700;">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="static/js/main.js"></script>
+</body>
+</html>

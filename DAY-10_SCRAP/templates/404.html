@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ error_code|default(404) }} — Page Not Found{% endblock %}
+
+{% block content %}
+<div class="error-page">
+  <div class="error-code">{{ error_code|default(404) }}</div>
+  <h1 class="error-title">{{ error_msg|default('Page Not Found') }}</h1>
+  <p class="error-desc">
+    The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+  </p>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-house"></i> Back to Home
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-outline btn-lg">
+      <i class="fa-solid fa-film"></i> Browse Movie Nights
+    </a>
+  </div>
+</div>
+{% endblock %}

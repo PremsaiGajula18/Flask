@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — Health Claims Simulator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mb-3">
+                        <i class="bi bi-person-plus-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">Create an Account</h3>
+                    <p class="text-muted small">Register for your role in the Claims Simulator</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <!-- Role Selector -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-secondary">Select Your Role</label>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3">
+                                <input type="radio" class="btn-check" name="role" id="role_policyholder" value="policyholder" checked>
+                                <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center h-100 text-center" for="role_policyholder">
+                                    <i class="bi bi-person-heart fs-4 mb-1"></i>
+                                    <span class="small fw-semibold">Policyholder</span>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" class="btn-check" name="role" id="role_hospital" value="hospital">
+                                <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center h-100 text-center" for="role_hospital">
+                                    <i class="bi bi-hospital fs-4 mb-1"></i>
+                                    <span class="small fw-semibold">Hospital Desk</span>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" class="btn-check" name="role" id="role_officer" value="claims_officer">
+                                <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center h-100 text-center" for="role_officer">
+                                    <i class="bi bi-clipboard2-pulse fs-4 mb-1"></i>
+                                    <span class="small fw-semibold">Claims Officer</span>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" class="btn-check" name="role" id="role_admin" value="admin">
+                                <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center h-100 text-center" for="role_admin">
+                                    <i class="bi bi-shield-lock fs-4 mb-1"></i>
+                                    <span class="small fw-semibold">Administrator</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="mb-3">
+                        <label for="display_name" class="form-label fw-semibold small">Full Name / Desk Title <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-card-heading"></i></span>
+                            <input type="text" class="form-control" id="display_name" name="display_name" placeholder="e.g. Premsai Gajula or CityCare Admission Desk" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold small">Username <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username" required>
+                        </div>
+                        <div class="form-text small">Used to sign in to your dashboard.</div>
+                    </div>
+
+                    <!-- Dynamic Hospital selection for Hospital Desk Role -->
+                    <div class="mb-3 d-none" id="hospitalSelectGroup">
+                        <label for="hospital_id" class="form-label fw-semibold small">Empanelled Hospital <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-building"></i></span>
+                            <select class="form-select" id="hospital_id" name="hospital_id">
+                                <option value="">-- Choose Network Hospital --</option>
+                                {% for h in hospitals %}
+                                <option value="{{ h.id }}">{{ h.name }} ({{ h.city }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-text small">Hospital staff are linked to their respective network hospital for cashless claims.</div>
+                    </div>
+
+                    <!-- Dynamic Plan selection for Policyholder Role -->
+                    <div class="mb-3" id="planSelectGroup">
+                        <label for="plan_id" class="form-label fw-semibold small">Insurance Plan Subscription</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-heart-pulse"></i></span>
+                            <select class="form-select" id="plan_id" name="plan_id">
+                                {% for p in plans %}
+                                <option value="{{ p.id }}">{{ p.name }} (Limit: ₹{{ "{:,.0f}".format(p.annual_limit_inr) }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-text small">An active policy with covered self-member will be automatically generated for you.</div>
+                    </div>
+
+                    <!-- Password fields -->
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label fw-semibold small">Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="At least 6 characters" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label fw-semibold small">Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key-fill"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-semibold shadow-sm mb-3">
+                        <i class="bi bi-check-circle me-1"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="text-center pt-3 border-top">
+                    <span class="text-muted small">Already registered?</span><br>
+                    <a href="{{ url_for('auth.login') }}" class="fw-bold text-decoration-none text-primary">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Existing Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const roleRadios = document.querySelectorAll('input[name="role"]');
+    const hospitalGroup = document.getElementById("hospitalSelectGroup");
+    const hospitalSelect = document.getElementById("hospital_id");
+    const planGroup = document.getElementById("planSelectGroup");
+
+    function toggleRoleFields() {
+        const selectedRole = document.querySelector('input[name="role"]:checked').value;
+        if (selectedRole === "hospital") {
+            hospitalGroup.classList.remove("d-none");
+            hospitalSelect.setAttribute("required", "required");
+            planGroup.classList.add("d-none");
+        } else if (selectedRole === "policyholder") {
+            hospitalGroup.classList.add("d-none");
+            hospitalSelect.removeAttribute("required");
+            planGroup.classList.remove("d-none");
+        } else {
+            hospitalGroup.classList.add("d-none");
+            hospitalSelect.removeAttribute("required");
+            planGroup.classList.add("d-none");
+        }
+    }
+
+    roleRadios.forEach(radio => radio.addEventListener("change", toggleRoleFields));
+    toggleRoleFields();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flask Written Exam Preparation Guide | Antigravity</title>
+<style>
+:root {
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --accent: #1d4ed8;
+  --accent-light: #eff6ff;
+  --border: #cbd5e1;
+  --code-bg: #090d16;
+  --code-text: #e2e8f0;
+  --tag-bg: #dbeafe;
+  --tag-text: #1e40af;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b91c1c;
+  --sidebar-w: 300px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #090d16;
+  --bg-card: #111827;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-light: #1e3a8a;
+  --border: #334155;
+  --code-bg: #030712;
+  --code-text: #f3f4f6;
+  --tag-bg: #1e3a8a;
+  --tag-text: #93c5fd;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  line-height: 1.65;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+#sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1rem;
+  z-index: 100;
+}
+
+.brand {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.search-box {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex-grow: 1;
+}
+
+.nav-links a {
+  display: block;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.nav-links a:hover {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-weight: 600;
+}
+
+/* Main Area */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  max-width: calc(100vw - var(--sidebar-w));
+  padding: 2rem 3.5rem;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+h1 { font-size: 2.1rem; margin-bottom: 0.75rem; color: var(--accent); }
+h2 { font-size: 1.55rem; margin: 2rem 0 1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 1.4rem 0 0.6rem; color: var(--accent); }
+h4 { font-size: 1.05rem; margin: 1.1rem 0 0.5rem; }
+p { margin-bottom: 0.9rem; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* Callouts */
+.alert {
+  padding: 0.9rem 1.2rem;
+  border-radius: 6px;
+  margin: 1.2rem 0;
+  border-left: 4px solid;
+}
+.alert-tip { background: #f0fdf4; border-color: #16a34a; color: #166534; }
+.alert-note { background: #eff6ff; border-color: #2563eb; color: #1e40af; }
+.alert-warn { background: #fffbeb; border-color: #d97706; color: #92400e; }
+.alert-exam { background: #fdf2f8; border-color: #db2777; color: #9d174d; }
+
+[data-theme="dark"] .alert-tip { background: #064e3b; color: #a7f3d0; border-color: #34d399; }
+[data-theme="dark"] .alert-note { background: #1e3a8a; color: #bfdbfe; border-color: #60a5fa; }
+[data-theme="dark"] .alert-warn { background: #78350f; color: #fde68a; border-color: #fbbf24; }
+[data-theme="dark"] .alert-exam { background: #831843; color: #fbcfe8; border-color: #f472b6; }
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 1.1rem 1.25rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+  border: 1px solid #1e293b;
+}
+
+code {
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  background: rgba(148, 163, 184, 0.2);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+pre code { background: none; padding: 0; }
+
+.flowchart {
+  background: var(--bg-card);
+  border: 2px dashed var(--accent);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+  font-family: monospace;
+  white-space: pre;
+  color: var(--accent);
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+}
+th, td {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  font-size: 0.9rem;
+}
+th {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-weight: 700;
+}
+
+details {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+}
+summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent);
+  user-select: none;
+}
+details[open] summary { margin-bottom: 0.65rem; }
+
+/* Interactive MCQs */
+.mcq-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+.mcq-opt {
+  display: block;
+  margin: 0.45rem 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mcq-opt:hover { background: var(--tag-bg); }
+.mcq-opt.correct {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #15803d;
+  font-weight: 700;
+}
+.mcq-opt.wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+@media print {
+  #sidebar, .top-bar, .no-print { display: none !important; }
+  #main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+  .card { border: 1px solid #ccc; page-break-inside: avoid; }
+  pre { border: 1px solid #333; color: #000; background: #f5f5f5; }
+}
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="brand">
+    <span>📘</span> Flask Exam Master
+  </div>
+  <input type="text" id="search" class="search-box" placeholder="Search syllabus, concepts...">
+  <ul class="nav-links">
+    <li><a href="#s1">01. Fundamentals & Architecture</a></li>
+    <li><a href="#s2">02. Routing & URL Dispatch</a></li>
+    <li><a href="#s3">03. Request & Response Objects</a></li>
+    <li><a href="#s4">04. Jinja2 Templating Engine</a></li>
+    <li><a href="#s5">05. Forms, POST & CSRF Security</a></li>
+    <li><a href="#s6">06. Client Sessions & Cookies</a></li>
+    <li><a href="#s7">07. Authentication & Hashing</a></li>
+    <li><a href="#s8">08. Database: Raw SQL (MySQL)</a></li>
+    <li><a href="#s9">09. Database: SQLAlchemy 2.0 ORM</a></li>
+    <li><a href="#s10">10. Complete Single-File CRUD</a></li>
+    <li><a href="#s11">11. REST APIs & JSON Workflow</a></li>
+    <li><a href="#s12">12. Error Handling & HTTP Codes</a></li>
+    <li><a href="#s13">13. Custom Decorators & Hooks</a></li>
+    <li><a href="#s14">14. Context Globals (g, current_app)</a></li>
+    <li><a href="#s15">15. Master Comparison Tables</a></li>
+    <li><a href="#s16">16. Predict the Output Scenarios</a></li>
+    <li><a href="#s17">17. 10 Code Debugging Challenges</a></li>
+    <li><a href="#s18">18. 30 Exam Questions (2 Marks)</a></li>
+    <li><a href="#s19">19. 20 Exam Questions (5 Marks)</a></li>
+    <li><a href="#s20">20. 10 Exam Questions (10 Marks)</a></li>
+    <li><a href="#s21">21. Interactive MCQs & Final Review</a></li>
+  </ul>
+</aside>
+
+<main id="main">
+  <div class="top-bar">
+    <div>
+      <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Paper-Based Written Exam Preparation Guide | Comprehensive Syllabus</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="btn" onclick="toggleTheme()">🌓 Dark / Light Mode</button>
+      <button class="btn" onclick="window.print()">🖨️ Print Exam Guide</button>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="s1" class="card">
+    <h1>01. Fundamentals of Flask & Architecture</h1>
+    <p>Flask is a lightweight, extensible micro-framework written in Python. It is founded on two core architectural pillars: the <strong>Werkzeug WSGI toolkit</strong> (which handles HTTP routing, request/response objects, and server bridging) and the <strong>Jinja2 template engine</strong> (which renders dynamic HTML).</p>
+    
+    <div class="alert alert-note">
+      <strong>Real-World Analogy:</strong> Think of Flask as a modular skeleton house. Unlike Django (which comes fully furnished with admin, ORM, and auth pre-installed), Flask gives you the strong structural framing, allowing you to choose exactly which plumbing, interior walls, and fixtures (SQLAlchemy, Jinja, bcrypt) to plug in.
+    </div>
+
+    <h3>Standard Minimal Flask Program</h3>
+    <pre><code>from flask import Flask
+
+# 1. Create the application instance
+app = Flask(__name__)
+
+# 2. Define route with view function
+@app.route('/')
+def home():
+    return "Hello, Flask Exam!"
+
+# 3. Development server entry point
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+</code></pre>
+
+    <h4>Line-by-Line Written Examination Breakdown:</h4>
+    <ul>
+      <li><code>from flask import Flask</code>: Imports the WSGI-compliant <code>Flask</code> class from the <code>flask</code> package.</li>
+      <li><code>app = Flask(__name__)</code>: Instantiates the application. <code>__name__</code> is a special Python built-in variable resolving to <code>'__main__'</code> when executed directly. Flask uses it to determine root path for locating <code>templates/</code> and <code>static/</code> directories.</li>
+      <li><code>@app.route('/')</code>: A Python decorator mapping the web request path <code>/</code> to the <code>home()</code> handler function.</li>
+      <li><code>def home(): return ...</code>: The view function returning an HTTP response body (string, HTML, or tuple).</li>
+      <li><code>if __name__ == '__main__':</code>: Python entry point guard, ensuring the app runs only when executed directly, not when imported as a module.</li>
+      <li><code>app.run(debug=True)</code>: Starts the built-in development server with automatic code reloading and an interactive browser debugger.</li>
+    </ul>
+
+    <div class="flowchart">
+[Client Browser] ──(HTTP GET /)──> [WSGI Server / Werkzeug]
+                                          │
+                                   [URL Routing Map]
+                                          │
+                                   [home() View Function]
+                                          │
+[Client Browser] <──(HTTP 200 "Hello...")─┘
+    </div>
+
+    <div class="alert alert-exam">
+      <strong>Exam Memory Trick:</strong> Remember <strong>I-I-R-R</strong>: <strong>I</strong>mport Flask &rarr; <strong>I</strong>nstantiate (<code>app = Flask(__name__)</code>) &rarr; <strong>R</strong>oute (<code>@app.route()</code>) &rarr; <strong>R</strong>un (<code>app.run()</code>).
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="s2" class="card">
+    <h1>02. App Routing & URL Dispatch</h1>
+    <p>Routing associates a specific URI request path to a corresponding Python function known as a <strong>view function</strong>.</p>
+    
+    <h3>URL Converters in Flask</h3>
+    <table>
+      <thead>
+        <tr><th>Converter</th><th>Description</th><th>Exam Syntax Example</th><th>Accepted Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>string</code> (default)</td><td>Accepts any text without slashes</td><td><code>@app.route('/user/&lt;name&gt;')</code></td><td>"premsai", "admin"</td></tr>
+        <tr><td><code>int</code></td><td>Accepts positive integers</td><td><code>@app.route('/trip/&lt;int:trip_id&gt;')</code></td><td>1, 104, 9999</td></tr>
+        <tr><td><code>float</code></td><td>Accepts floating point numbers</td><td><code>@app.route('/price/&lt;float:val&gt;')</code></td><td>19.99, 450.50</td></tr>
+        <tr><td><code>path</code></td><td>Accepts text with slashes included</td><td><code>@app.route('/file/&lt;path:filepath&gt;')</code></td><td>"docs/notes/exam.pdf"</td></tr>
+        <tr><td><code>uuid</code></td><td>Accepts standard UUID strings</td><td><code>@app.route('/order/&lt;uuid:id&gt;')</code></td><td>123e4567-e89b...</td></tr>
+      </tbody>
+    </table>
+
+    <h3>HTTP Methods & URL Building with <code>url_for()</code></h3>
+    <pre><code>from flask import Flask, redirect, url_for
+
+app = Flask(__name__)
+
+# Specifying allowed methods
+@app.route('/item/&lt;int:item_id&gt;', methods=['GET', 'POST'])
+def handle_item(item_id):
+    return f"Item ID: {item_id}"
+
+@app.route('/redirect-me')
+def test_redirect():
+    # Dynamic URL generation avoiding hardcoded strings
+    return redirect(url_for('handle_item', item_id=42))
+</code></pre>
+
+    <div class="alert alert-warn">
+      <strong>Common Written Exam Mistake:</strong> Confusing the function name with the URL path inside <code>url_for()</code>. Always write <code>url_for('function_name', param=val)</code>, NOT <code>url_for('/route/url')</code>!
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="s3" class="card">
+    <h1>03. Request & Response Objects</h1>
+    <p>Flask provides global context objects (thread-local proxies) to examine client requests and craft precise HTTP responses.</p>
+    
+    <h3>Key Attributes of <code>request</code></h3>
+    <ul>
+      <li><code>request.method</code>: Returns HTTP verb (<code>'GET'</code>, <code>'POST'</code>, <code>'PUT'</code>, <code>'DELETE'</code>).</li>
+      <li><code>request.form</code>: ImmutableMultiDict containing parsed HTML form input data (from POST).</li>
+      <li><code>request.args</code>: ImmutableMultiDict containing URL query parameters (e.g. <code>?search=beach&page=2</code>).</li>
+      <li><code>request.json</code> or <code>request.get_json()</code>: Parsed JSON payload from API requests.</li>
+      <li><code>request.cookies</code>: Dictionary containing cookies passed by the browser.</li>
+      <li><code>request.headers</code>: HTTP request headers dictionary (e.g. User-Agent).</li>
+    </ul>
+
+    <h3>Crafting Custom Responses with <code>make_response()</code></h3>
+    <pre><code>from flask import Flask, make_response, jsonify
+
+app = Flask(__name__)
+
+@app.route('/custom-resp')
+def custom_resp():
+    resp = make_response("Custom Body Text", 201)
+    resp.headers['X-Custom-Header'] = 'ExamGuide'
+    resp.set_cookie('exam_tracker', 'completed', max_age=3600)
+    return resp
+</code></pre>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="s4" class="card">
+    <h1>04. Jinja2 Templating Engine</h1>
+    <p>Jinja2 separates application logic (Python) from presentation layout (HTML). Flask automatically looks for HTML files in the <code>templates/</code> folder.</p>
+
+    <h3>Jinja2 Syntax Delimiters</h3>
+    <table>
+      <thead>
+        <tr><th>Delimiter</th><th>Meaning</th><th>Written Exam Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>{{ ... }}</code></td><td>Expression / Variable printing</td><td><code>&lt;h1&gt;Hello, {{ username }}&lt;/h1&gt;</code></td></tr>
+        <tr><td><code>{% ... %}</code></td><td>Control logic (if, for, blocks)</td><td><code>{% for trip in trips %} ... {% endfor %}</code></td></tr>
+        <tr><td><code>{# ... #}</code></td><td>Jinja template comment (never rendered)</td><td><code>{# This is hidden in browser source #}</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Template Inheritance Workflow (Dry Run Pattern)</h3>
+    <pre><code><!-- templates/base.html -->
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;{% block title %}Trip App{% endblock %}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav&gt;Nav Links&lt;/nav&gt;
+  &lt;main&gt;
+    {% block content %}{% endblock %}
+  &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+  &lt;h2&gt;Welcome, {{ user }}!&lt;/h2&gt;
+  {% if trips %}
+    &lt;ul&gt;
+    {% for trip in trips %}
+      &lt;li&gt;{{ trip.title }} - ${{ trip.budget }}&lt;/li&gt;
+    {% endfor %}
+    &lt;/ul&gt;
+  {% else %}
+    &lt;p&gt;No trips planned yet.&lt;/p&gt;
+  {% endif %}
+{% endblock %}
+</code></pre>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="s5" class="card">
+    <h1>05. Forms, POST & CSRF Security</h1>
+    <p>Form handling is the backbone of web user interaction. Secure Flask applications always distinguish GET (displaying form) from POST (processing submission) and enforce CSRF (Cross-Site Request Forgery) protection.</p>
+
+    <h3>Complete Form Processing Pattern</h3>
+    <pre><code>from flask import Flask, render_template, request, flash, redirect, url_for
+
+app = Flask(__name__)
+app.secret_key = 'super_secret_exam_key'
+
+@app.route('/create-trip', methods=['GET', 'POST'])
+def create_trip():
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        budget = request.form.get('budget', '').strip()
+
+        # Input Validation (Essential for full marks in exams)
+        if not title:
+            flash("Trip title is required!", "danger")
+            return render_template('trip_form.html')
+        
+        try:
+            budget_val = float(budget)
+            if budget_val &lt; 0:
+                raise ValueError()
+        except ValueError:
+            flash("Budget must be a positive number!", "danger")
+            return render_template('trip_form.html')
+
+        # Logic for saving into DB...
+        flash(f"Trip '{title}' saved successfully!", "success")
+        return redirect(url_for('trip_list'))
+
+    return render_template('trip_form.html')
+</code></pre>
+
+    <div class="alert alert-exam">
+      <strong>Post/Redirect/Get (PRG) Pattern:</strong> Explain why we use <code>redirect()</code> after successful POST. If the user clicks "Reload", the browser prompts "Confirm form resubmission" causing duplicate database records. Redirecting to a GET route completely prevents this bug!
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="s6" class="card">
+    <h1>06. Client Sessions & Cookies</h1>
+    <p>HTTP is a <strong>stateless protocol</strong>. Flask sessions store key-value data across subsequent user requests using cryptographically signed cookies.</p>
+
+    <h3>How Flask Sessions Work</h3>
+    <ul>
+      <li>Flask stores session data directly in a browser cookie named <code>session</code>.</li>
+      <li>It uses <code>app.secret_key</code> to digitally sign the cookie with HMAC-SHA1/SHA256.</li>
+      <li><strong>Crucial Exam Fact:</strong> Client-side cookies are <em>readable</em> (base64 decoded) by the client unless encrypted, but they are <em>tamper-proof</em> (the server rejects any cookie modified without the secret key).</li>
+    </ul>
+
+    <pre><code>from flask import Flask, session, redirect, url_for
+
+app = Flask(__name__)
+app.secret_key = 'my-exam-signing-key'
+
+@app.route('/set-session/&lt;username&gt;')
+def login_sim(username):
+    session['logged_in_user'] = username
+    return f"Session established for {username}"
+
+@app.route('/get-session')
+def dashboard():
+    user = session.get('logged_in_user')
+    if not user:
+        return redirect(url_for('login'))
+    return f"Welcome back, {user}!"
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in_user', None)  # Safe removal
+    # or session.clear() to remove all keys
+    return "Logged out!"
+</code></pre>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="s7" class="card">
+    <h1>07. User Authentication & Password Hashing</h1>
+    <p>Passwords must NEVER be stored in plain text. Flask applications use <strong>Werkzeug Security</strong> to salt and hash credentials.</p>
+
+    <h3>Werkzeug Security Functions</h3>
+    <pre><code>from werkzeug.security import generate_password_hash, check_password_hash
+
+# During Registration:
+plain_password = "user_secret_123"
+hashed_password = generate_password_hash(plain_password, method='pbkdf2:sha256')
+# Store hashed_password into MySQL / SQLite database
+
+# During Login:
+entered_password = "user_secret_123"
+is_valid = check_password_hash(hashed_password, entered_password) # Returns True/False
+</code></pre>
+
+    <h3>Specific Error Handling on Login (User Requirement)</h3>
+    <p>Rather than a generic message, examine the exact lookup condition:</p>
+    <pre><code># 1. Fetch user by username
+user = db.query("SELECT * FROM users WHERE username = %s", (entered_user,))
+
+if not user:
+    flash("User does not exist!", "danger")
+elif not check_password_hash(user['password_hash'], entered_password):
+    flash("Incorrect password!", "danger")
+else:
+    session['user_id'] = user['id']
+    flash("Login successful!", "success")
+</code></pre>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="s8" class="card">
+    <h1>08. Database Operations with Raw SQL (mysql.connector)</h1>
+    <p>Direct relational database connectivity using Python cursors and parameterized queries to prevent SQL Injection.</p>
+
+    <h3>The 5 Steps of Database Execution</h3>
+    <ol>
+      <li><strong>Connect:</strong> <code>conn = mysql.connector.connect(...)</code></li>
+      <li><strong>Cursor:</strong> <code>cursor = conn.cursor(dictionary=True)</code></li>
+      <li><strong>Execute:</strong> <code>cursor.execute(sql_query, tuple_params)</code></li>
+      <li><strong>Commit:</strong> <code>conn.commit()</code> (Mandatory for INSERT, UPDATE, DELETE)</li>
+      <li><strong>Close:</strong> <code>cursor.close()</code> and <code>conn.close()</code></li>
+    </ol>
+
+    <pre><code>import mysql.connector
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="premsai444@123",
+        database="trip_planner_db"
+    )
+
+def fetch_trips_by_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # Parameterized query with %s prevents SQL injection
+        cursor.execute("SELECT * FROM trips WHERE user_id = %s", (user_id,))
+        trips = cursor.fetchall()
+        return trips
+    finally:
+        cursor.close()
+        conn.close()
+</code></pre>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="s9" class="card">
+    <h1>09. Modern SQLAlchemy 2.0 & Flask-SQLAlchemy 3.x</h1>
+    <p>SQLAlchemy Object Relational Mapper (ORM) represents database tables as Python classes and table rows as Python class instances.</p>
+
+    <h3>Modern Declarative Model Syntax (SQLAlchemy 2.0)</h3>
+    <pre><code>from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, Integer, Float, ForeignKey
+from datetime import datetime
+
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exam.db'
+db.init_app(app)
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+class Trip(db.Model):
+    __tablename__ = 'trips'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    budget: Mapped[float] = mapped_column(Float, default=0.0)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+</code></pre>
+
+    <h3>Session Operations in SQLAlchemy 2.0</h3>
+    <ul>
+      <li><strong>Create:</strong> <code>db.session.add(new_obj); db.session.commit()</code></li>
+      <li><strong>Read:</strong> <code>item = db.session.get(Trip, 1)</code> or <code>items = db.session.execute(db.select(Trip).where(Trip.budget &gt; 500)).scalars().all()</code></li>
+      <li><strong>Update:</strong> <code>item.budget = 750.0; db.session.commit()</code></li>
+      <li><strong>Delete:</strong> <code>db.session.delete(item); db.session.commit()</code></li>
+    </ul>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="s10" class="card">
+    <h1>10. Complete Single-File CRUD Architecture</h1>
+    <p>Exam questions regularly ask to write a complete CRUD module in a single <code>app.py</code> script.</p>
+
+    <pre><code>from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+# In-memory storage dictionary simulating database
+DATA_STORE = {}
+COUNTER = 1
+
+# 1. CREATE
+@app.route('/items', methods=['POST'])
+def create_item():
+    global COUNTER
+    payload = request.get_json()
+    item_id = COUNTER
+    DATA_STORE[item_id] = payload
+    COUNTER += 1
+    return jsonify({"id": item_id, "data": payload}), 201
+
+# 2. READ ALL
+@app.route('/items', methods=['GET'])
+def get_all_items():
+    return jsonify(DATA_STORE), 200
+
+# 3. READ ONE
+@app.route('/items/&lt;int:item_id&gt;', methods=['GET'])
+def get_single_item(item_id):
+    item = DATA_STORE.get(item_id)
+    if not item:
+        return jsonify({"error": "Item not found"}), 404
+    return jsonify({"id": item_id, "data": item}), 200
+
+# 4. UPDATE
+@app.route('/items/&lt;int:item_id&gt;', methods=['PUT'])
+def update_item(item_id):
+    if item_id not in DATA_STORE:
+        return jsonify({"error": "Item not found"}), 404
+    DATA_STORE[item_id] = request.get_json()
+    return jsonify({"message": "Updated successfully"}), 200
+
+# 5. DELETE
+@app.route('/items/&lt;int:item_id&gt;', methods=['DELETE'])
+def delete_item(item_id):
+    if item_id not in DATA_STORE:
+        return jsonify({"error": "Item not found"}), 404
+    del DATA_STORE[item_id]
+    return jsonify({"message": "Deleted successfully"}), 200
+</code></pre>
+  </section>
+
+  <!-- SECTION 11 -->
+  <section id="s11" class="card">
+    <h1>11. REST APIs & JSON Workflow</h1>
+    <p>Representational State Transfer (REST) APIs expose server resources formatted primarily in JSON with appropriate HTTP Status Codes.</p>
+
+    <h3>HTTP Status Code Reference for Exams</h3>
+    <table>
+      <thead>
+        <tr><th>Code</th><th>Standard Meaning</th><th>Typical Flask Scenario</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>200 OK</strong></td><td>Success</td><td>Successful GET request</td></tr>
+        <tr><td><strong>201 Created</strong></td><td>Resource created</td><td>Successful POST record insertion</td></tr>
+        <tr><td><strong>204 No Content</strong></td><td>Action succeeded, no body</td><td>Successful DELETE request</td></tr>
+        <tr><td><strong>400 Bad Request</strong></td><td>Malformed client input</td><td>Missing required JSON fields</td></tr>
+        <tr><td><strong>401 Unauthorized</strong></td><td>Authentication missing</td><td>No login session / token present</td></tr>
+        <tr><td><strong>403 Forbidden</strong></td><td>Authenticated, but unauthorized</td><td>User tries accessing another user's private trip</td></tr>
+        <tr><td><strong>404 Not Found</strong></td><td>Resource not found</td><td>Route or ID does not exist</td></tr>
+        <tr><td><strong>500 Server Error</strong></td><td>Internal runtime crash</td><td>Unhandled Python exception</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 12 -->
+  <section id="s12" class="card">
+    <h1>12. Error Handling & Custom Pages</h1>
+    <p>Flask provides <code>@app.errorhandler</code> to catch HTTP status errors and Python exceptions, returning custom user-friendly HTML pages instead of raw tracebacks.</p>
+
+    <pre><code>from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.errorhandler(404)
+def page_not_found(error):
+    # Notice: returning the status code 404 as the second tuple element is required!
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('500.html'), 500
+</code></pre>
+
+    <div class="alert alert-warn">
+      <strong>Exam Rule:</strong> When writing custom error handlers in a paper exam, never forget to append the status code at the end of the return statement (e.g., <code>return render_template('404.html'), 404</code>). If omitted, Flask will default to sending <code>200 OK</code>!
+    </div>
+  </section>
+
+  <!-- SECTION 13 -->
+  <section id="s13" class="card">
+    <h1>13. Custom Decorators & Hooks</h1>
+    <p>Decorators wrap view functions to enforce authorization, session validation, or logging without duplicating code across routes.</p>
+
+    <h3>Creating a Custom <code>@login_required</code> Decorator</h3>
+    <pre><code>from functools import wraps
+from flask import session, redirect, url_for, flash
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash("Please log in first to access this page.", "warning")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Using the decorator
+@app.route('/my-trips')
+@login_required
+def my_trips():
+    return "User Protected Trips List"
+</code></pre>
+    <div class="alert alert-tip">
+      <strong>Why <code>@wraps(f)</code> is mandatory:</strong> Flask uses the function name (<code>__name__</code>) to register URL endpoints. Without <code>@wraps(f)</code>, all decorated functions will take the name <code>'decorated_function'</code>, causing an <code>AssertionError: View function mapping is overwriting an existing endpoint function</code>!
+    </div>
+  </section>
+
+  <!-- SECTION 14 -->
+  <section id="s14" class="card">
+    <h1>14. Context Globals (g, current_app)</h1>
+    <p>Flask provides application and request context globals that exist for the lifetime of a single request.</p>
+    <ul>
+      <li><code>flask.g</code>: A namespace object for storing data during a request (e.g. database connections, authenticated user object). It is reset between requests.</li>
+      <li><code>flask.current_app</code>: Points to the active application instance handling the request (useful in blueprints and helper functions).</li>
+    </ul>
+
+    <pre><code>from flask import g
+import sqlite3
+
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect('database.db')
+        g.db.row_factory = sqlite3.Row
+    return g.db
+
+@app.teardown_appcontext
+def close_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+</code></pre>
+  </section>
+
+  <!-- SECTION 15 -->
+  <section id="s15" class="card">
+    <h1>15. Master Comparison Tables</h1>
+    <h3>1. Raw SQL vs. SQLAlchemy ORM</h3>
+    <table>
+      <thead>
+        <tr><th>Dimension</th><th>Raw SQL (mysql.connector)</th><th>SQLAlchemy ORM</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Paradigm</strong></td><td>Direct SQL text execution with cursors</td><td>Object-oriented mapping (Python classes to tables)</td></tr>
+        <tr><td><strong>Productivity</strong></td><td>Requires writing verbose queries for every CRUD</td><td>Rapid querying via high-level Python methods</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Direct execution, zero mapping overhead</td><td>Slight abstraction overhead for object hydration</td></tr>
+        <tr><td><strong>Portability</strong></td><td>Locked to specific database dialect (MySQL)</td><td>Database-agnostic (Switch from SQLite to MySQL seamlessly)</td></tr>
+        <tr><td><strong>Security</strong></td><td>Risk of injection if parameters aren't formatted with %s</td><td>Automatic parameterized querying by default</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. GET Method vs. POST Method</h3>
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>HTTP GET</th><th>HTTP POST</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Data Location</strong></td><td>Appended in URL Query string (<code>?q=paris</code>)</td><td>Sent inside the HTTP Request Body</td></tr>
+        <tr><td><strong>Visibility</strong></td><td>Visible in browser URL bar, browser history</td><td>Hidden from address bar</td></tr>
+        <tr><td><strong>Data Limit</strong></td><td>Restricted by URL length limits (~2048 chars)</td><td>Virtually unlimited (supports file uploads)</td></tr>
+        <tr><td><strong>Idempotence</strong></td><td>Idempotent (multiple calls yield same outcome)</td><td>Non-idempotent (re-submitting creates duplicate resources)</td></tr>
+        <tr><td><strong>Flask Access</strong></td><td><code>request.args.get('key')</code></td><td><code>request.form.get('key')</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 16 -->
+  <section id="s16" class="card">
+    <h1>16. Predict the Output (Written Exam Scenarios)</h1>
+    
+    <details>
+      <summary>Scenario 1: Default String Converter and Trailing Slashes</summary>
+      <pre><code>@app.route('/items/')
+def items_list():
+    return "List of Items"
+
+# Question: What happens when the user visits http://localhost:5000/items (without trailing slash)?
+</code></pre>
+      <p><strong>Answer:</strong> Flask automatically returns an HTTP <strong>308 Permanent Redirect</strong> pointing the browser to <code>/items/</code>, which then responds with <code>"List of Items"</code> (Status 200). Flask standardizes canonical URLs with trailing slashes.</p>
+    </details>
+
+    <details>
+      <summary>Scenario 2: Variable Type Conversion</summary>
+      <pre><code>@app.route('/calculate/&lt;num&gt;')
+def calc(num):
+    return num * 2
+
+# Question: What is returned if the user requests /calculate/5 ?
+</code></pre>
+      <p><strong>Answer:</strong> It returns <code>"55"</code>! Because no converter type was specified, <code>num</code> defaults to a <code>str</code>. In Python, <code>"5" * 2</code> concatenates strings rather than performing arithmetic. To perform math, use <code>&lt;int:num&gt;</code>.</p>
+    </details>
+
+    <details>
+      <summary>Scenario 3: Missing Secret Key Exception</summary>
+      <pre><code>app = Flask(__name__)
+# Notice app.secret_key is NOT defined
+
+@app.route('/login')
+def test():
+    session['user'] = 'Prem'
+    return "Logged in"
+</code></pre>
+      <p><strong>Answer:</strong> The app crashes with a <code>RuntimeError: The session is unavailable because no secret key was set. Set the secret_key on the application to something unique and secret.</code></p>
+    </details>
+  </section>
+
+  <!-- SECTION 17 -->
+  <section id="s17" class="card">
+    <h1>17. 10 Code Debugging Challenges</h1>
+    
+    <details>
+      <summary>Bug #1: View Function Missing HTTP Method</summary>
+      <pre><code># BUGGY:
+@app.route('/submit')
+def submit():
+    if request.method == 'POST':
+        return "Received"
+
+# FIX:
+@app.route('/submit', methods=['GET', 'POST'])
+def submit():
+    ...
+# Explanation: By default, @app.route only responds to GET. Submitting POST yields HTTP 405 Method Not Allowed.
+</code></pre>
+    </details>
+
+    <details>
+      <summary>Bug #2: Forgetting Database Commit on Raw SQL</summary>
+      <pre><code># BUGGY:
+cursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
+# FIX:
+cursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
+conn.commit()  # Without commit(), transaction is rolled back on connection close!
+</code></pre>
+    </details>
+
+    <details>
+      <summary>Bug #3: Overwriting Built-in url_for Endpoint Names</summary>
+      <pre><code># BUGGY:
+@app.route('/user')
+def profile(): ...
+
+@app.route('/admin')
+def profile(): ... # Name clash!
+
+# FIX: Each view function name must be unique within an application.
+</code></pre>
+    </details>
+  </section>
+
+  <!-- SECTION 18 -->
+  <section id="s18" class="card">
+    <h1>18. 30 Exam Questions (2 Marks Each)</h1>
+    <ol>
+      <li><strong>What is WSGI?</strong> Web Server Gateway Interface; the Python standard (PEP 3333) describing how a web server communicates with web application frameworks.</li>
+      <li><strong>What is the purpose of <code>__name__</code> in <code>Flask(__name__)</code>?</strong> It allows Flask to locate the root directory of the application to find <code>templates</code>, <code>static</code>, and resource files.</li>
+      <li><strong>What is the default port of a Flask development server?</strong> Port <code>5000</code>.</li>
+      <li><strong>What does <code>debug=True</code> do in Flask?</strong> Enables automatic code reloading upon changes and displays an interactive debugger on unhandled exceptions in the browser.</li>
+      <li><strong>Distinguish between <code>request.args</code> and <code>request.form</code>.</strong> <code>request.args</code> retrieves URL query parameters from GET requests; <code>request.form</code> parses form payload from POST requests.</li>
+      <li><strong>Why should <code>app.secret_key</code> be kept confidential?</strong> It cryptographically signs session cookies; exposing it allows attackers to forge cookies and impersonate any user.</li>
+      <li><strong>What does <code>render_template()</code> do?</strong> Parses a Jinja2 template file located in the <code>templates/</code> folder, populates variable placeholders, and returns an HTML string.</li>
+      <li><strong>What is the default HTTP method for any Flask route?</strong> <code>GET</code>.</li>
+      <li><strong>How do you return JSON from a Flask route?</strong> By importing and calling <code>jsonify(data_dict)</code> from <code>flask</code>.</li>
+      <li><strong>Explain the <code>url_for()</code> function.</strong> Dynamically generates the absolute URL for a specific view function by its name, preventing brittle hardcoded URLs.</li>
+      <li><strong>What is Jinja2 Template Inheritance?</strong> A pattern where child templates extend a master base template using <code>{% extends "base.html" %}</code> and override defined <code>{% block %}</code> regions.</li>
+      <li><strong>What does <code>session.clear()</code> do?</strong> Removes all key-value entries stored in the client's current session cookie.</li>
+      <li><strong>Why must database transactions be committed?</strong> Without <code>conn.commit()</code> or <code>db.session.commit()</code>, changes are staged in memory and never written permanently to disk.</li>
+      <li><strong>How do you redirect a user in Flask?</strong> Use <code>return redirect(url_for('destination_function'))</code>.</li>
+      <li><strong>What HTTP status code is sent on <code>redirect()</code> by default?</strong> HTTP <code>302 Found</code> (Temporary Redirect).</li>
+      <li><strong>What is the function of <code>flash()</code> messages?</strong> Displays one-time feedback messages to users that automatically disappear after being rendered in the next request.</li>
+      <li><strong>What is SQL Injection?</strong> A vulnerability where malicious SQL commands are executed because raw untrusted input was directly concatenated into queries.</li>
+      <li><strong>How does parameterization stop SQL injection?</strong> Input is treated strictly as literal data rather than executable SQL syntax (e.g., using <code>%s</code> placeholders).</li>
+      <li><strong>What is an ORM?</strong> Object-Relational Mapping; a technique translating database tables into Python classes and records into Python objects.</li>
+      <li><strong>What is the role of <code>mapped_column()</code> in SQLAlchemy 2.0?</strong> Explicitly configures table column properties (type, primary key, nullable) while maintaining Python type hints.</li>
+      <li><strong>What does <code>get_json()</code> do?</strong> Parses the incoming request body as JSON, returning a Python dictionary or list.</li>
+      <li><strong>Explain HTTP 404 vs 405.</strong> <code>404 Not Found</code> means the requested URL doesn't exist; <code>405 Method Not Allowed</code> means the URL exists but doesn't permit the HTTP method (e.g., POST to a GET-only route).</li>
+      <li><strong>What is the <code>g</code> object in Flask?</strong> A thread-local global namespace for sharing data (like a database connection) across functions within a single request.</li>
+      <li><strong>What is the difference between <code>abort(404)</code> and <code>render_template('404.html')</code>?</strong> <code>abort(404)</code> raises an HTTPException immediately halting execution; <code>render_template</code> simply produces the HTML text.</li>
+      <li><strong>How do you handle file uploads in Flask?</strong> Access the file via <code>request.files['file_key']</code> and save using <code>file.save(path)</code>.</li>
+      <li><strong>What is CSRF?</strong> Cross-Site Request Forgery; an attack forcing a logged-in user to execute unwanted actions on a web application where they are authenticated.</li>
+      <li><strong>How does a CSRF token protect forms?</strong> By generating a unique, secret cryptographic token stored in the session and validating that the submitted form includes that matching token.</li>
+      <li><strong>What is the default hashing algorithm used by Werkzeug?</strong> <code>pbkdf2:sha256</code> with salt.</li>
+      <li><strong>What is the purpose of <code>@wraps(f)</code> in custom decorators?</strong> Preserves the original function's name and docstring, preventing endpoint collision in Flask.</li>
+      <li><strong>What is a Blueprint in Flask?</strong> A modular way to organize a Flask application into reusable, self-contained sub-components with their own routes and templates.</li>
+    </ol>
+  </section>
+
+  <!-- SECTION 19 -->
+  <section id="s19" class="card">
+    <h1>19. 20 Exam Questions (5 Marks Each)</h1>
+    <details>
+      <summary>1. Explain the request-response lifecycle of a Flask application with a diagram.</summary>
+      <p>1. <strong>Request Arrival:</strong> Browser sends HTTP request to the web server (WSGI/Werkzeug).<br>
+      2. <strong>Context Setup:</strong> Flask pushes Application and Request Contexts, creating proxies for <code>request</code>, <code>session</code>, and <code>g</code>.<br>
+      3. <strong>URL Matching:</strong> The URL routing map identifies the matching view function.<br>
+      4. <strong>View Execution:</strong> The view function processes input, queries the database, and calls <code>render_template()</code>.<br>
+      5. <strong>Response Generation:</strong> Return values are converted to a Response object, session cookies are signed, and contexts are popped.<br>
+      6. <strong>Transmission:</strong> Response is returned via WSGI to the client browser.</p>
+    </details>
+
+    <details>
+      <summary>2. Describe how to implement User Registration with password hashing and database insertion.</summary>
+      <pre><code>@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        if not username or not password:
+            flash("All fields are required!", "danger")
+            return render_template('register.html')
+            
+        hashed = generate_password_hash(password)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed))
+            conn.commit()
+            flash("Registration successful! Please login.", "success")
+            return redirect(url_for('login'))
+        except mysql.connector.IntegrityError:
+            flash("Username already taken!", "danger")
+        finally:
+            cursor.close()
+            conn.close()
+    return render_template('register.html')
+</code></pre>
+    </details>
+
+    <details>
+      <summary>3. Write a Flask route demonstrating the Post/Redirect/Get (PRG) pattern and explain why it is vital.</summary>
+      <p>PRG prevents duplicate form submissions. After processing a POST request, rather than returning an HTML page directly with <code>200 OK</code>, the server issues a <code>302 Redirect</code> to a GET endpoint.</p>
+    </details>
+  </section>
+
+  <!-- SECTION 20 -->
+  <section id="s20" class="card">
+    <h1>20. 10 Long-Answer Exam Questions (10 Marks Each)</h1>
+    <details>
+      <summary>1. Design a Complete Movie/Trip Booking Management System in a Single app.py file with Auth and CRUD.</summary>
+      <pre><code># Full 10-Mark Architectural Blueprint:
+from flask import Flask, render_template_string, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+
+app = Flask(__name__)
+app.secret_key = 'exam_secret_master_key'
+
+# In-memory database simulation for exam purposes
+USERS = {}
+ITEMS = []
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user' not in session:
+            flash("Login required", "warning")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        u = request.form['username']
+        p = request.form['password']
+        if u in USERS:
+            flash("Username exists", "danger")
+        else:
+            USERS[u] = generate_password_hash(p)
+            flash("Registered successfully", "success")
+            return redirect(url_for('login'))
+    return '&lt;form method="POST"&gt;Username: &lt;input name="username"&gt;&lt;br&gt;Password: &lt;input name="password" type="password"&gt;&lt;br&gt;&lt;button type="submit"&gt;Register&lt;/button&gt;&lt;/form&gt;'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        u = request.form['username']
+        p = request.form['password']
+        if u not in USERS:
+            flash("User does not exist", "danger")
+        elif not check_password_hash(USERS[u], p):
+            flash("Incorrect password", "danger")
+        else:
+            session['user'] = u
+            return redirect(url_for('dashboard'))
+    return '&lt;form method="POST"&gt;Username: &lt;input name="username"&gt;&lt;br&gt;Password: &lt;input name="password" type="password"&gt;&lt;br&gt;&lt;button type="submit"&gt;Login&lt;/button&gt;&lt;/form&gt;'
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return f"Welcome {session['user']}! &lt;a href='/add'&gt;Add Item&lt;/a&gt; | &lt;a href='/logout'&gt;Logout&lt;/a&gt;"
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
+</code></pre>
+    </details>
+  </section>
+
+  <!-- SECTION 21 -->
+  <section id="s21" class="card">
+    <h1>21. Interactive Written Exam MCQs</h1>
+    <p>Test your knowledge before the exam. Click any option to reveal real-time feedback.</p>
+
+    <div class="mcq-box" id="q1">
+      <p><strong>1. Which WSGI toolkit is Flask built directly on top of?</strong></p>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. Django is a separate web framework.')">A. Django</div>
+      <div class="mcq-opt" onclick="checkMcq(this, true, 'Correct! Flask uses Werkzeug for HTTP routing and WSGI compliance.')">B. Werkzeug</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. Gunicorn is an independent WSGI HTTP server.')">C. Gunicorn</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. Requests is an HTTP client library.')">D. Requests</div>
+    </div>
+
+    <div class="mcq-box" id="q2">
+      <p><strong>2. In Jinja2 templates, which syntax is used to output and print variable values?</strong></p>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. {% %} is used for control structures like loops and ifs.')">A. {% variable %}</div>
+      <div class="mcq-opt" onclick="checkMcq(this, true, 'Correct! Double curly braces {{ variable }} evaluate and print expressions.')">B. {{ variable }}</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. {# #} is for comments.')">C. {# variable #}</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. ${} is JavaScript template literal syntax.')">D. ${variable}</div>
+    </div>
+
+    <div class="mcq-box" id="q3">
+      <p><strong>3. What HTTP status code is sent when an unhandled server-side Python exception occurs?</strong></p>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. 400 means Bad Request from client.')">A. 400 Bad Request</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. 404 means URL not found.')">B. 404 Not Found</div>
+      <div class="mcq-opt" onclick="checkMcq(this, true, 'Correct! 500 represents Internal Server Error.')">C. 500 Internal Server Error</div>
+      <div class="mcq-opt" onclick="checkMcq(this, false, 'Incorrect. 503 means Service Unavailable.')">D. 503 Service Unavailable</div>
+    </div>
+  </section>
+</main>
+
+<script>
+// Search Functionality across all sections
+document.getElementById('search').addEventListener('input', function(e) {
+  const query = e.target.value.toLowerCase();
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(query) ? 'block' : 'none';
+  });
+});
+
+// Dark/Light Mode Toggle
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const target = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', target);
+}
+
+// Interactive MCQ Checker
+function checkMcq(elem, isCorrect, explanation) {
+  const parent = elem.closest('.mcq-box');
+  const options = parent.querySelectorAll('.mcq-opt');
+  options.forEach(opt => {
+    opt.classList.remove('correct', 'wrong');
+  });
+  
+  if (isCorrect) {
+    elem.classList.add('correct');
+  } else {
+    elem.classList.add('wrong');
+  }
+
+  let expBox = parent.querySelector('.mcq-exp');
+  if (!expBox) {
+    expBox = document.createElement('div');
+    expBox.className = 'mcq-exp alert ' + (isCorrect ? 'alert-tip' : 'alert-warn');
+    expBox.style.marginTop = '0.75rem';
+    parent.appendChild(expBox);
+  } else {
+    expBox.className = 'mcq-exp alert ' + (isCorrect ? 'alert-tip' : 'alert-warn');
+  }
+  expBox.textContent = explanation;
+}
+</script>
+</body>
+</html>

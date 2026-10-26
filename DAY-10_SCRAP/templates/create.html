@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Movie Night — MovieNight Planner{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper wide">
+  <div class="form-card">
+    <div class="form-card-header" style="text-align: left;">
+      <span class="badge badge-purple" style="margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-clapperboard"></i> Host Studio
+      </span>
+      <h1 class="form-card-title">Plan Your Perfect Movie Night</h1>
+      <p class="form-card-desc">
+        Set up a screening event, invite attendees, and collect votes for candidate films.
+      </p>
+    </div>
+
+    <form action="{{ url_for('create_night') }}" method="POST" class="submit-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label for="nightTitle"><i class="fa-solid fa-heading"></i> Movie Night Title</label>
+        <input type="text" id="nightTitle" name="title" class="form-control"
+          placeholder="e.g. Christopher Nolan Mind-Benders Showcase"
+          value="{{ title or '' }}" required>
+      </div>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+          <label for="nightDate"><i class="fa-regular fa-calendar"></i> Event Date</label>
+          <input type="date" id="nightDate" name="scheduled_date" class="form-control"
+            value="{{ scheduled_date }}" required>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+          <label for="nightCategory"><i class="fa-solid fa-tag"></i> Category</label>
+          <select id="nightCategory" name="category" class="form-control" required>
+            {% for cat in allowed_categories %}
+              <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label for="nightDesc"><i class="fa-solid fa-align-left"></i> Short Description</label>
+        <textarea id="nightDesc" name="description" class="form-control" rows="3"
+          placeholder="Share details about your movie night — venue, snacks, what makes it special..."
+          required maxlength="500">{{ description or '' }}</textarea>
+        <div class="char-counter" id="descCharCounter">0/500</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.75rem;">
+        <label for="initialCandidates">
+          <i class="fa-solid fa-film"></i> Initial Movie Choices (Optional, comma-separated)
+        </label>
+        <input type="text" id="initialCandidates" name="initial_candidates" class="form-control"
+          placeholder="e.g. Inception (2010), The Prestige (2006)"
+          value="{{ initial_candidates or '' }}">
+        <small style="color: var(--text-muted); font-size: 0.78rem; margin-top: 0.3rem;">
+          You can add more choices later from the Host Controls panel.
+        </small>
+      </div>
+
+      <div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-end;">
+        <a href="{{ url_for('index') }}" class="btn btn-outline">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <span class="btn-text"><i class="fa-solid fa-plus"></i> Create Movie Night</span>
+          <span class="spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Character counter for description
+  const descField = document.getElementById('nightDesc');
+  const descCounter = document.getElementById('descCharCounter');
+  if (descField && descCounter) {
+    function updateCounter() {
+      const len = descField.value.length;
+      const max = 500;
+      descCounter.textContent = `${len}/${max}`;
+      descCounter.classList.remove('warning', 'danger');
+      if (len > max * 0.9) descCounter.classList.add('danger');
+      else if (len > max * 0.7) descCounter.classList.add('warning');
+    }
+    descField.addEventListener('input', updateCounter);
+    updateCounter();
+  }
+</script>
+{% endblock %}

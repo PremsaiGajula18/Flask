@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% block title %}Claim #{{ claim.id }} · Adjudication Console{% endblock %}
+{% block content %}
+<!-- Top Header & Breadcrumb Bar -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h1 class="h3 mb-0">Claim Record #{{ claim.id }}</h1>
+      <span class="badge status-{{ claim.status }} fs-6">{{ claim.status|replace('_',' ')|title }}</span>
+      <span class="badge text-bg-light border fs-6">{{ claim.claim_type|title }}</span>
+    </div>
+    <div class="text-secondary small">
+      Registered under Policy #{{ claim.policy.id }} ({{ claim.policy.plan.plan_name }})
+    </div>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('claims.list_claims') }}">
+    <i class="bi bi-arrow-left"></i> Back to Claims List
+  </a>
+</div>
+
+<div class="row g-4">
+  <!-- Left Side: Claim Details, Documents, Adjudication Workflows -->
+  <div class="col-lg-7">
+    <!-- Primary Claim Information Card -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-info-circle text-primary"></i> Patient & Hospitalization Data
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Policy Details</span>
+            <span class="fw-semibold text-dark">#{{ claim.policy.id }} · {{ claim.policy.plan.plan_name }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Primary Policyholder</span>
+            <span class="fw-semibold text-dark">{{ claim.policy.holder.display_name }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Beneficiary / Patient</span>
+            <span class="fw-semibold text-dark">{{ claim.member.display_name }}</span>
+            <span class="badge bg-light text-secondary border ms-1">{{ claim.member.relationship|title }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Treating Hospital</span>
+            <span class="fw-semibold text-dark">{{ claim.hospital.name }}</span>
+            <div class="small">
+              {{ claim.hospital.city }} ·
+              {% if claim.hospital.network_status %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle">Network Empanelled</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Non-Network</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Treatment Classification</span>
+            <span class="fw-semibold text-dark">{{ claim.treatment_type|title }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Hospitalization Dates</span>
+            <span class="fw-semibold text-dark">
+              {{ claim.admission_date.strftime('%d %b %Y') }} to {{ claim.discharge_date.strftime('%d %b %Y') }}
+            </span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Claim Amount Requested</span>
+            <span class="fs-5 fw-bold text-dark">₹{{ '{:,.2f}'.format(claim.requested_amount_inr|float) }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-secondary small d-block">Eligible Adjudicated Amount</span>
+            {% if claim.eligible_amount_inr is not none %}
+              <span class="fs-5 fw-bold text-success">₹{{ '{:,.2f}'.format(claim.eligible_amount_inr|float) }}</span>
+            {% else %}
+              <span class="text-secondary italic">Under Assessment</span>
+            {% endif %}
+          </div>
+          <div class="col-12 border-top pt-2">
+            <span class="text-secondary small d-block">Clinical / Claim Narrative</span>
+            <p class="mb-0 text-dark">{{ claim.description or 'No clinical narrative provided.' }}</p>
+          </div>
+          {% if claim.decision_reason %}
+          <div class="col-12">
+            <div class="alert alert-secondary mb-0">
+              <strong class="d-block mb-1"><i class="bi bi-chat-left-text me-1"></i> Claims Adjudication Rationale:</strong>
+              {{ claim.decision_reason }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Verification Checklist Card -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-paperclip text-primary"></i> Supporting Documents Checklist
+        </h2>
+        <span class="badge text-bg-light border text-secondary">{{ claim.documents|length }} Required</span>
+      </div>
+      <div class="card-body">
+        {% if claim.created_by_user_id==current_user.id and claim.status in ['draft','more_info'] %}
+        <form method="post" action="{{ url_for('claims.update_documents', claim_id=claim.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <div class="table-responsive">
+          <table class="table align-middle mb-3">
+            <thead>
+              <tr>
+                <th>Document Type</th>
+                <th>Checklist Verification Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in claim.documents %}
+              <tr>
+                <td class="fw-medium text-dark">{{ doc.document_type|replace('_',' ')|title }}</td>
+                <td>
+                  {% if claim.created_by_user_id==current_user.id and claim.status in ['draft','more_info'] %}
+                    <select class="form-select form-select-sm" style="max-width: 180px;" name="{{ doc.document_type }}">
+                      <option value="missing" {% if doc.checklist_status=='missing' %}selected{% endif %}>Missing</option>
+                      <option value="received" {% if doc.checklist_status=='received' %}selected{% endif %}>Received</option>
+                    </select>
+                  {% else %}
+                    {% if doc.checklist_status=='received' %}
+                      <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check2"></i> Received</span>
+                    {% else %}
+                      <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x"></i> Missing</span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if claim.created_by_user_id==current_user.id and claim.status in ['draft','more_info'] %}
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-save"></i> Save Document Status
+            </button>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Policyholder / Hospital Submission Box -->
+    {% if current_user.role in ['policyholder','hospital'] and claim.status in ['draft','more_info'] and (claim.created_by_user_id==current_user.id or (current_user.role=='policyholder' and claim.policy.holder_user_id==current_user.id) or (current_user.role=='hospital' and claim.claim_type=='cashless' and current_user.hospital_id==claim.hospital_id)) %}
+    <form method="post" action="{{ url_for('claims.submit', claim_id=claim.id) }}" class="card shadow-sm mb-4 border-primary-subtle">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="card-header bg-primary-subtle text-primary py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-send-check"></i>
+          {% if claim.status=='draft' %}Dispatch Claim for Adjudication{% else %}Respond to Information Request{% endif %}
+        </h2>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary small mb-3">
+          {% if claim.status=='draft' %}
+            Please verify all supporting documents and hospitalization dates before submitting to the underwriting officer.
+          {% else %}
+            Upload or confirm the requested documents and click below to return the file to the claims officer queue.
+          {% endif %}
+        </p>
+        <div class="mb-3">
+          <label class="form-label" for="submission-note">Submission Remarks</label>
+          <input id="submission-note" class="form-control" name="note" value="{% if claim.status=='draft' %}Submitted by creator{% else %}Requested information provided{% endif %}">
+        </div>
+        <button class="btn btn-primary" onclick="return confirm('Confirm submission of this claim file?');">
+          <i class="bi bi-send"></i> {% if claim.status=='draft' %}Submit Claim File{% else %}Submit Response{% endif %}
+        </button>
+      </div>
+    </form>
+    {% endif %}
+
+    <!-- Claims Officer Adjudication Deck -->
+    {% if current_user.role=='claims_officer' %}
+    <div class="card shadow-sm mb-4 border-primary">
+      <div class="card-header bg-dark text-white py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-person-badge"></i> Claims Officer Adjudication Deck
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info py-2 px-3 small mb-3">
+          <i class="bi bi-calculator me-1"></i> Available Cover Estimate: <strong>₹{{ '{:,.2f}'.format(remaining|float) }}</strong> (Balance sum insured in policy year).
+        </div>
+
+        <form method="post" action="{{ url_for('claims.review', claim_id=claim.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          {% if claim.status=='submitted' %}
+            <input type="hidden" name="action" value="assign">
+            <button class="btn btn-primary">
+              <i class="bi bi-hand-index-thumb"></i>
+              {% if claim.claim_type=='cashless' %}Assign to Me · Verify Hospital & Policy{% else %}Assign to Me · Verify Reimbursement{% endif %}
+            </button>
+
+          {% elif claim.status=='hospital_check' and claim.officer_user_id==current_user.id %}
+            <div class="mb-3">
+              <label class="form-label">Hospital Validation Notes</label>
+              <textarea class="form-control" name="reason" rows="2" placeholder="Record hospital license & empanelment verification details"></textarea>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-success" name="action" value="hospital_valid">
+                <i class="bi bi-check-lg"></i> Hospital Empanelled & Valid · Proceed
+              </button>
+              <button class="btn btn-danger" name="action" value="hospital_invalid" onclick="return confirm('Reject this claim because the hospital is invalid or ineligible?')">
+                <i class="bi bi-x-circle"></i> Reject (Non-network / Ineligible)
+              </button>
+            </div>
+
+          {% elif claim.status=='policy_check' and claim.officer_user_id==current_user.id %}
+            <div class="mb-3">
+              <label class="form-label">Policy Validation Notes</label>
+              <textarea class="form-control" name="reason" rows="2" placeholder="Record policyholder validity, dates, and pre-existing disease checks"></textarea>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-success" name="action" value="policy_valid">
+                <i class="bi bi-check-lg"></i> Policy Verified · Move to Review
+              </button>
+              <button class="btn btn-danger" name="action" value="policy_invalid">
+                <i class="bi bi-x-circle"></i> Reject (Policy Ineligible / Lapsed)
+              </button>
+            </div>
+
+          {% elif claim.status=='in_review' and claim.officer_user_id==current_user.id %}
+            <div class="mb-3">
+              <label class="form-label">Adjudication Rationale / Decision Justification</label>
+              <textarea class="form-control" name="reason" rows="2" required placeholder="Mandatory written justification for decision"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Approved Eligible Amount (INR)</label>
+              <input class="form-control" type="number" min="0.01" step="0.01" name="eligible_amount_inr" placeholder="Enter approved amount, e.g. 50000">
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-success" name="action" value="approve">
+                <i class="bi bi-check2-circle"></i> Approve Eligible Amount
+              </button>
+              <button class="btn btn-warning" name="action" value="more_info">
+                <i class="bi bi-question-circle"></i> Request More Info
+              </button>
+              <button class="btn btn-danger" name="action" value="reject">
+                <i class="bi bi-x-octagon"></i> Reject Claim
+              </button>
+            </div>
+
+          {% else %}
+            <p class="text-secondary mb-0">
+              {% if claim.status=='submitted' %}
+                Assign this claim to yourself to commence adjudication.
+              {% elif claim.status in ['hospital_check','policy_check'] %}
+                Execute the designated verification stage above.
+              {% else %}
+                This claim is currently locked or assigned to another adjudicator.
+              {% endif %}
+            </p>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Administrator Settlement Execution Box -->
+    {% if current_user.role=='admin' and claim.status=='approved' and not claim.settlement %}
+    <form method="post" action="{{ url_for('claims.settle', claim_id=claim.id) }}" class="card shadow-sm mb-4 border-success">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="card-header bg-success text-white py-3">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-cash-stack"></i> Settlement Disbursement Desk
+        </h2>
+      </div>
+      <div class="card-body">
+        <p class="mb-2">
+          Calculated Net Payout: <strong class="fs-5 text-success">₹{{ '{:,.2f}'.format((claim.eligible_amount_inr|float - [claim.eligible_amount_inr|float, claim.policy.plan.deductible_inr|float]|min) * (1 - claim.policy.plan.copay_percent|float / 100)) }}</strong>
+        </p>
+        <p class="small text-secondary mb-3">
+          Formula: (Approved Eligible - Min(Deductible, Eligible)) × (1 - Copay%). Synthetic sandbox payout.
+        </p>
+        <button class="btn btn-success">
+          <i class="bi bi-check-all"></i> Record Simulated Disbursement
+        </button>
+      </div>
+    </form>
+    {% endif %}
+
+    <!-- Settlement Confirmation Notice -->
+    {% if claim.settlement %}
+    <div class="alert alert-success shadow-sm mb-4">
+      <div class="d-flex align-items-start">
+        <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+        <div>
+          <strong class="fs-6">Simulated Settlement Disbursed & Completed</strong>
+          <div class="mt-1">
+            Recipient Payee: <strong>{{ claim.settlement.payee_type|title }}</strong> ·
+            Disbursed Amount: <strong>₹{{ '{:,.2f}'.format(claim.settlement.amount_inr|float) }}</strong> ·
+            Timestamp: {{ claim.settlement.recorded_at.strftime('%d %b %Y, %H:%M') }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Side: Workflow Audit Trail / Timeline -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm sticky-top" style="top: 85px;">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-clock-history text-primary"></i> Lifecycle Audit Trail
+        </h2>
+        <span class="badge text-bg-light border text-secondary">{{ claim.history|length }} Events</span>
+      </div>
+      <div class="card-body">
+        <div class="timeline">
+          {% for event in claim.history %}
+          <div class="timeline-item">
+            <div class="fw-bold text-dark">
+              {{ event.to_status|replace('_',' ')|title }}
+              {% if event.from_status %}
+                <span class="text-secondary fw-normal small">← {{ event.from_status|replace('_',' ')|title }}</span>
+              {% endif %}
+            </div>
+            <div class="small text-secondary mb-1">
+              {{ event.created_at.strftime('%d %b %Y, %H:%M') }} · <strong class="text-dark">{{ event.actor.display_name }}</strong>
+            </div>
+            <div class="small text-body bg-light p-2 rounded border">
+              {{ event.note or 'Workflow transition updated' }}
+            </div>
+          </div>
+          {% else %}
+          <p class="text-secondary mb-0">No lifecycle events recorded.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

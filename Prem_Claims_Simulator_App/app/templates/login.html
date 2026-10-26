@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Sign In · CarePulse Claims Portal{% endblock %}
+{% block content %}
+<div class="login-page-wrapper">
+  <div class="login-auth-card">
+    <div class="login-auth-header">
+      <div class="login-auth-logo-pulse">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12h2l1-2 2 4 1-2h2"/>
+        </svg>
+      </div>
+      <h1>CarePulse Portal</h1>
+      <p>Health Claims Processing & Adjudication System</p>
+    </div>
+
+    <!-- Quick Role Autofill for Seamless Testing -->
+    <div class="role-quick-selector">
+      <div class="role-quick-selector-title">
+        <span><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Demo Logins</span>
+        <span class="text-secondary fw-normal">Click to fill</span>
+      </div>
+      <div class="role-buttons-grid">
+        <button type="button" class="role-pill-btn" onclick="fillLogin('admin', 'Demo123!')">
+          <span class="role-dot" style="background-color: #6366f1;"></span>
+          <span>Admin</span>
+        </button>
+        <button type="button" class="role-pill-btn" onclick="fillLogin('officer_priya', 'Demo123!')">
+          <span class="role-dot" style="background-color: #06b6d4;"></span>
+          <span>Claims Officer</span>
+        </button>
+        <button type="button" class="role-pill-btn" onclick="fillLogin('hospital_apollo', 'Demo123!')">
+          <span class="role-dot" style="background-color: #10b981;"></span>
+          <span>Hospital Desk</span>
+        </button>
+        <button type="button" class="role-pill-btn" onclick="fillLogin('holder_aarav', 'Demo123!')">
+          <span class="role-dot" style="background-color: #f59e0b;"></span>
+          <span>Policyholder</span>
+        </button>
+      </div>
+    </div>
+
+    <form method="post" class="login-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      
+      <div class="mb-3">
+        <label class="form-label" for="username">
+          <i class="bi bi-person text-secondary me-1"></i> Username
+        </label>
+        <input id="username" class="form-control" name="username" autocomplete="username" placeholder="Enter username" required autofocus>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="password">
+          <i class="bi bi-lock text-secondary me-1"></i> Password
+        </label>
+        <input id="password" class="form-control" type="password" name="password" autocomplete="current-password" placeholder="Enter password" required>
+      </div>
+
+      <button class="btn btn-primary w-100 py-2 fs-6 mb-3" type="submit">
+        <span>Authenticate & Access Workspace</span>
+        <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </form>
+
+    <div class="text-center pt-2 border-top">
+      <small class="text-secondary">
+        <i class="bi bi-shield-check text-success me-1"></i>
+        Secure sandbox environment with synthetic records.
+      </small>
+    </div>
+  </div>
+</div>
+
+<script>
+  function fillLogin(u, p) {
+    document.getElementById('username').value = u;
+    document.getElementById('password').value = p;
+  }
+</script>
+{% endblock %}
